@@ -1,10 +1,10 @@
-# GoGetSQL
+# Goma
 
-GoGetSQL is a library writen in Go to convert tabular data to SQL insert statements. Its first capability is converting a CSV file into a SQL file.
+Goma is a library writen in Go to convert tabular data to SQL insert statements. Its first capability is converting a CSV file into a SQL file.
 
 ## CSV to SQL
 
-Usage of `gogetsql`:
+Usage of `goma`:
 
   - _--chunk_ (int): 
         The number of sql statements in a transaction scope. 0 is all statements in the same transaction. It must be greater than --chunkinsert.
@@ -23,9 +23,9 @@ Usage of `gogetsql`:
 
 Examples:
 
-    $ ./gogetsql --help
+    $ ./goma --help
 
-    $ ./gogetsql \
+    $ ./goma \
         --csv=test_comma.csv \
         --separator=comma \
         --skipfirstline \
