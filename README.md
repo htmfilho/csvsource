@@ -1,10 +1,10 @@
-# Goma
+# Roma
 
-Goma is a library writen in Go to convert tabular data to SQL insert statements. Its first capability is converting a CSV file into a SQL file.
+Roma is a library writen in Rust to convert tabular data to SQL insert statements. Its first capability is converting a CSV file into a SQL file. It has special features like grouping insert statements in transaction chunks and inserting multiple rows with a single insert statement.
 
 ## CSV to SQL
 
-Usage of `goma`:
+Usage of `roma`:
 
   - _--chunk_ (int): 
         The number of sql statements in a transaction scope. 0 is all statements in the same transaction. It must be greater than --chunkinsert.
@@ -23,9 +23,9 @@ Usage of `goma`:
 
 Examples:
 
-    $ ./goma --help
+    $ ./roma --help
 
-    $ ./goma \
+    $ ./roma \
         --csv=test_comma.csv \
         --separator=comma \
         --skipfirstline \
