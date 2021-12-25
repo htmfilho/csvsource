@@ -1,0 +1,18 @@
+﻿= Roma : Concert a CSV file to SQL Insert Statements
+Hildeberto Mendonca <me@hildeberto.com>
+v0.0.0
+:doctype: book
+:pdf-page-size: LETTER
+:encoding: utf-8
+:toc: left
+:toclevels: 3
+:numbered:
+
+> Roma is a library writen in Rust to convert a CSV file to SQL insert statements. It has special features like grouping insert statements in transaction chunks and inserting multiple rows with a single insert statement.
+
+:sectnums!:
+
+
+:sectnums:
+
+

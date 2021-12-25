@@ -1,6 +1,6 @@
 # Roma
 
-Roma is a library writen in Rust to convert tabular data to SQL insert statements. Its first capability is converting a CSV file into a SQL file. It has special features like grouping insert statements in transaction chunks and inserting multiple rows with a single insert statement.
+Roma is a library writen in Rust to convert a CSV file to SQL insert statements. It has special features like grouping insert statements in transaction chunks and inserting multiple rows with a single insert statement.
 
 ## CSV to SQL
 
