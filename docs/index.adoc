@@ -1,4 +1,4 @@
-﻿= Roma : Concert a CSV file to SQL Insert Statements
+﻿= Roma : Convert a CSV file to SQL Insert Statements
 Hildeberto Mendonca <me@hildeberto.com>
 v0.0.0
 :doctype: book
