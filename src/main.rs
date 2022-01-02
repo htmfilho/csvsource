@@ -1,3 +1,56 @@
+use clap::{Arg, App};
+
 fn main() {
-    println!("Roma");
+    let matches = App::new("Roma")
+        .version("0.1.0")
+        .author("Hildeberto Mendonca <me@hildeberto.com>")
+        .about("Converts a CSV file to SQL Insert Statements.")
+        .arg(Arg::new("csv")
+                .long("csv")
+                .short('f')
+                .value_name("file")
+                .required(true)
+                .takes_value(true)
+                .help("Relative or absolute path to the CSV file. The name of the file is also used was table name unless specified otherwise."))
+        .arg(Arg::new("separator")
+                .long("separator")
+                .short('s')
+                .default_value("comma")
+                .value_name("comma | tab")
+                .help("The supported CSV separator used in the file."))
+        .arg(Arg::new("labels")
+                .long("labels")
+                .short('l')
+                .default_value("true")
+                .value_name("true | false")
+                .help("Consider the first line in the file as labels to columns. They are also used as sql column names unless specified otherwise."))
+        .arg(Arg::new("table")
+                .long("table")
+                .short('t')
+                .default_value("CSV file name")
+                .value_name("database_table_name")
+                .help("Database table name if it is different from the name of the CSV file."))
+        .arg(Arg::new("columns")
+                .long("columns")
+                .short('c')
+                .default_value("CSV labels")
+                .value_name("database_column_names")
+                .help("Columns of the database table if different from the name of the labels."))
+        .arg(Arg::new("chunk")
+                .long("chunk")
+                .short('k')
+                .default_value("-1")
+                .value_name("#")
+                .help("Size of the transaction chunk, indicating how many insert statements are put within a transaction scope."))
+        .arg(Arg::new("insert_chunk")
+                .long("insertchunk")
+                .short('i')
+                .default_value("-1")
+                .value_name("#")
+                .help("Size of the insert chunk, indicating how many lines of the CSV files will be put in a single insert statement."))
+        .get_matches();
+
+    if let Some(i) = matches.value_of("csv") {
+        println!("Importing {}...", i);
+    }
 }
