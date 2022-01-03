@@ -17,3 +17,46 @@ Using cloud providers to run our business has been a game changer. They allow us
 Take the provision of a managed PostgreSQL Server on Azure, for example. Azure ensures it is optimally configured for our needs, but it is quite limited when it comes to seeding the database using a CSV file. This is relatively easy doing with direct access to the server, but absolutely impossible to do in a managed instance.
 
 To solve this problem to all platforms, all cloud providers, and all SQL databases, we have developed a simple tool capable of converting a CSV file into a SQL file, where entries turn into insert statements. It is called Roma. All you need after using Roma is a mean to execute the final script, which is something we are pretty well served.
+
+== Using Rome
+
+    $ ./roma --csv waterloo_tree_inventory.csv
+
+This is what happened by default:
+
+- the name of the CSV file is used as the name of the table in the insert statement
+- the first line is skipped because it labels the data
+- the labels in the first line are used as columns of the table
+- the column separator is comma
+- each line in the CSV turns into an insert statement
+- all values were considered as string, even the numeric target_code.
+
+These default behaviours can be changed using more arguments. For example, to set the table name different from the CSV file name, use:
+
+    $ ./roma --csv waterloo_tree_inventory.csv --table TREE_INVENTORY
+
+If the first line contains data instead of labels then indicate it using:
+
+    --labels false
+
+If the labels are not present in the file or they don't match the columns of the table then we can customize the columns passing multiple `--column` or `-c` arguments, one of each column:
+
+    --column "coord_x(number)" --column "coord_y(number)" --column "street(text)" --column "species(text)" ...
+
+Note that this argument is required if `--label` is `false`. 
+
+The supported column types are **number**, **text**, and **date**. They are simple because they just define whether the value is sourounded by single cotes or not, or whether dates have to be formatted according to database requirements.
+
+If the file is using the _tab_ character as value separator, then specify it this way:
+
+    --separator tab
+
+Sometimes the CSV file is too large and generates too many insert statements to the point a single database transaction cannot cope. To create several thransactions throughout the file, use:
+
+    --chunk 1000
+
+It puts chunks of 1000 inserts between `begin transaction` and `commit transaction`. The insert statements can be further optimized, inserting several records at once by using:
+
+    --chunkinsert 250
+
+A proper configuration of `--chunk` and `chunkinsert` can optimize the SQL file maximum performance. In this case, a CSV file with 10000 records would be converted into a SQL with 10 transactions and each transaction would contain 4 inserts with 250 records each.

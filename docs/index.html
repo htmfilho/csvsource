@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
 <meta name="author" content="Hildeberto Mendonca">
-<title>Roma : Concert a CSV file to SQL Insert Statements</title>
+<title>Roma : Convert a CSV file to SQL Insert Statements</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -437,13 +437,20 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 @media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
 </style>
 </head>
-<body class="book">
+<body class="book toc2 toc-left">
 <div id="header">
-<h1>Roma : Concert a CSV file to SQL Insert Statements</h1>
+<h1>Roma : Convert a CSV file to SQL Insert Statements</h1>
 <div class="details">
 <span id="author" class="author">Hildeberto Mendonca</span><br>
 <span id="email" class="email"><a href="mailto:me@hildeberto.com">me@hildeberto.com</a></span><br>
 <span id="revnumber">version 0.0.0</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_why_roma">1. Why Roma</a></li>
+<li><a href="#_using_rome">2. Using Rome</a></li>
+</ul>
 </div>
 </div>
 <div id="content">
@@ -452,9 +459,115 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="quoteblock">
 <blockquote>
 <div class="paragraph">
-<p>Roma is a library writen in Rust to convert a CSV file to SQL insert statements. It has special features like grouping insert statements in transaction chunks and inserting multiple rows with a single insert statement.</p>
+<p>Roma is a command line tool writen in Rust to convert a CSV file to SQL insert statements. It has special features like grouping insert statements in transaction chunks and inserting multiple rows with a single insert statement.</p>
 </div>
 </blockquote>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_why_roma">1. Why Roma</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Using cloud providers to run our business has been a game changer. They allow us to rapidly provision all the resources to ensure high availability, security, and performance. In many cases, They also manage resources for us, considerably reducing complexity and saving time. However, the more control we delegate to them the less autonomy we have over those resources. This is a good thing because it pushes towards the adoption of good practices, but it can also be challenging sometimes.</p>
+</div>
+<div class="paragraph">
+<p>Take the provision of a managed PostgreSQL Server on Azure, for example. Azure ensures it is optimally configured for our needs, but it is quite limited when it comes to seeding the database using a CSV file. This is relatively easy doing with direct access to the server, but absolutely impossible to do in a managed instance.</p>
+</div>
+<div class="paragraph">
+<p>To solve this problem to all platforms, all cloud providers, and all SQL databases, we have developed a simple tool capable of converting a CSV file into a SQL file, where entries turn into insert statements. It is called Roma. All you need after using Roma is a mean to execute the final script, which is something we are pretty well served.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_using_rome">2. Using Rome</h2>
+<div class="sectionbody">
+<div class="literalblock">
+<div class="content">
+<pre>$ ./roma --csv waterloo_tree_inventory.csv</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This is what happened by default:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>the name of the CSV file is used as the name of the table in the insert statement</p>
+</li>
+<li>
+<p>the first line is skipped because it labels the data</p>
+</li>
+<li>
+<p>the labels in the first line are used as columns of the table</p>
+</li>
+<li>
+<p>the column separator is comma</p>
+</li>
+<li>
+<p>each line in the CSV turns into an insert statement</p>
+</li>
+<li>
+<p>all values were considered as string, even the numeric target_code.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>These default behaviours can be changed using more arguments. For example, to set the table name different from the CSV file name, use:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ ./roma --csv waterloo_tree_inventory.csv --table TREE_INVENTORY</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If the first line contains data instead of labels then indicate it using:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>--labels false</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If the labels are not present in the file or they don&#8217;t match the columns of the table then we can customize the columns passing multiple <code>--column</code> or <code>-c</code> arguments, one of each column:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>--column "coord_x(number)" --column "coord_y(number)" --column "street(text)" --column "species(text)" ...</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note that this argument is required if <code>--label</code> is <code>false</code>.</p>
+</div>
+<div class="paragraph">
+<p>The supported column types are <strong>number</strong>, <strong>text</strong>, and <strong>date</strong>. They are simple because they just define whether the value is sourounded by single cotes or not, or whether dates have to be formatted according to database requirements.</p>
+</div>
+<div class="paragraph">
+<p>If the file is using the <em>tab</em> character as value separator, then specify it this way:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>--separator tab</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Sometimes the CSV file is too large and generates too many insert statements to the point a single database transaction cannot cope. To create several thransactions throughout the file, use:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>--chunk 1000</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>It puts chunks of 1000 inserts between <code>begin transaction</code> and <code>commit transaction</code>. The insert statements can be further optimized, inserting several records at once by using:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>--chunkinsert 250</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A proper configuration of <code>--chunk</code> and <code>chunkinsert</code> can optimize the SQL file maximum performance. In this case, a CSV file with 10000 records would be converted into a SQL with 10 transactions and each transaction would contain 4 inserts with 250 records each.</p>
 </div>
 </div>
 </div>
@@ -462,7 +575,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="footer">
 <div id="footer-text">
 Version 0.0.0<br>
-Last updated 2021-12-25 16:20:42 -0500
+Last updated 2022-01-03 12:46:44 -0500
 </div>
 </div>
 </body>
