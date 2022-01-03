@@ -35,6 +35,7 @@ fn main() {
         .arg(Arg::new("columns")
                 .long("column")
                 .short('c')
+                .required_if_eq("labels", "false")
                 .multiple_occurrences(true)
                 .value_name("database_column_names")
                 .help("Columns of the database table if different from the name of the labels."))
