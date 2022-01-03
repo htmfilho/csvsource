@@ -89,7 +89,11 @@ fn load_arguments(matches: ArgMatches) -> Arguments {
     }
 
     if let Some(separator) = matches.value_of("separator") {
-        arguments.separator = String::from(separator);
+        match separator {
+            "comma" => arguments.separator = String::from(separator),
+            "tab" => arguments.separator = String::from(separator),
+            _ => panic!("Unknown separator: {}", separator)
+        }
     }
 
     if let Some(labels) = matches.value_of("labels") {
