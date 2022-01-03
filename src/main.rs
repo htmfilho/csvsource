@@ -45,8 +45,8 @@ fn main() {
                 .default_value("0")
                 .value_name("#")
                 .help("Size of the transaction chunk, indicating how many insert statements are put within a transaction scope."))
-        .arg(Arg::new("insert_chunk")
-                .long("insertchunk")
+        .arg(Arg::new("chunk_insert")
+                .long("chunkinsert")
                 .short('i')
                 .default_value("0")
                 .value_name("#")
@@ -61,7 +61,7 @@ fn main() {
     println!("table: {}", arguments.table);
     println!("columns: {:#?}", arguments.columns);
     println!("chunk: {}", arguments.chunk);
-    println!("insert chunk: {}", arguments.insert_chunk);
+    println!("insert chunk: {}", arguments.chunk_insert);
 }
 
 struct Arguments {
@@ -71,7 +71,7 @@ struct Arguments {
     table        : String,
     columns      : Vec<String>,
     chunk        : usize,
-    insert_chunk : usize
+    chunk_insert : usize
 }
 
 fn load_arguments(matches: ArgMatches) -> Arguments {
@@ -82,7 +82,7 @@ fn load_arguments(matches: ArgMatches) -> Arguments {
         table: String::from(""),
         columns: Vec::new(),
         chunk: 0,
-        insert_chunk: 0,
+        chunk_insert: 0,
     };
 
     if let Some(csv) = matches.value_of("csv") {
@@ -119,8 +119,8 @@ fn load_arguments(matches: ArgMatches) -> Arguments {
         arguments.chunk = String::from(chunk).parse::<usize>().unwrap();
     }
 
-    if let Some(insert_chunk) = matches.value_of("insert_chunk") {
-        arguments.insert_chunk = String::from(insert_chunk).parse::<usize>().unwrap();
+    if let Some(insert_chunk) = matches.value_of("chunk_insert") {
+        arguments.chunk_insert = String::from(insert_chunk).parse::<usize>().unwrap();
     }
     
     return arguments;
