@@ -1,4 +1,6 @@
-use clap::{Arg, ArgMatches, App};
+use clap::{Arg, ArgMatches, App, ErrorKind};
+use std::io;
+use std::path::Path;
 use std::result::Result;
 use std::str::FromStr;
 use std::str::ParseBoolError;
@@ -53,15 +55,27 @@ fn main() {
                 .help("Size of the insert chunk, indicating how many lines of the CSV files will be put in a single insert statement."))
         .get_matches();
 
-    let arguments = load_arguments(matches);
+    let args = load_arguments(matches);
 
-    println!("csv: {}", arguments.csv);
-    println!("separator: {}", arguments.separator);
-    println!("has_labels: {}", arguments.has_labels);
-    println!("table: {}", arguments.table);
-    println!("columns: {:#?}", arguments.columns);
-    println!("chunk: {}", arguments.chunk);
-    println!("insert chunk: {}", arguments.chunk_insert);
+    //println!("csv: {}", args.csv);
+    //println!("separator: {}", args.separator);
+    //println!("has_labels: {}", args.has_labels);
+    //println!("table: {}", args.table);
+    //println!("columns: {:#?}", args.columns);
+    //println!("chunk: {}", args.chunk);
+    //println!("insert chunk: {}", args.chunk_insert);
+
+    match process_csv(args) {
+        Ok(()) => println!("CSV file processed successfully!"),
+        Err(err) => println!("Error: {}.", err)
+    };
+}
+
+fn process_csv(args: Arguments) -> Result<(), io::Error> {
+    if !Path::new(args.csv.as_str()).exists() {
+        return Err(io::Error::new(io::ErrorKind::NotFound, "CSV file not found"));
+    }
+    return Ok(());
 }
 
 struct Arguments {
@@ -92,8 +106,8 @@ fn load_arguments(matches: ArgMatches) -> Arguments {
     if let Some(separator) = matches.value_of("separator") {
         match separator {
             "comma" => arguments.separator = String::from(separator),
-            "tab" => arguments.separator = String::from(separator),
-            _ => panic!("Unknown separator: {}", separator)
+            "tab"   => arguments.separator = String::from(separator),
+            _ => App::new("Roma").error(ErrorKind::InvalidValue, "Invalid separator. Use 'comma' or 'tab'.").exit()
         }
     }
 
