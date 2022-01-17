@@ -1,6 +1,9 @@
 use clap::{Arg, ArgMatches, App, ErrorKind};
+
+use std::fs::File;
 use std::io;
 use std::path::Path;
+use std::process;
 use std::result::Result;
 use std::str::FromStr;
 use std::str::ParseBoolError;
@@ -57,14 +60,6 @@ fn main() {
 
     let args = load_arguments(matches);
 
-    //println!("csv: {}", args.csv);
-    //println!("separator: {}", args.separator);
-    //println!("has_labels: {}", args.has_labels);
-    //println!("table: {}", args.table);
-    //println!("columns: {:#?}", args.columns);
-    //println!("chunk: {}", args.chunk);
-    //println!("insert chunk: {}", args.chunk_insert);
-
     match process_csv(args) {
         Ok(()) => println!("CSV file processed successfully!"),
         Err(err) => println!("Error: {}.", err)
@@ -75,6 +70,22 @@ fn process_csv(args: Arguments) -> Result<(), io::Error> {
     if !Path::new(args.csv.as_str()).exists() {
         return Err(io::Error::new(io::ErrorKind::NotFound, "CSV file not found"));
     }
+
+    let f = File::open(args.csv)?;
+    let reader = io::BufReader::new(f);
+    let mut csv_reader = csv::ReaderBuilder::new()
+                .has_headers(args.has_labels)
+                .from_reader(reader);
+    for result in csv_reader.records() {
+        match result {
+            Ok(record) => println!("{:?}", record),
+            Err(err) => {
+                println!("Error reading CSV from file: {}", err);
+                process::exit(1);
+            }
+        }
+    }
+
     return Ok(());
 }
 
