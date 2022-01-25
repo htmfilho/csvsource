@@ -26,12 +26,12 @@ fn main() {
                 .default_value("comma")
                 .value_name("comma | tab")
                 .help("The supported CSV separator used in the file."))
-        .arg(Arg::new("labels")
-                .long("labels")
-                .short('l')
+        .arg(Arg::new("headers")
+                .long("headers")
+                .short('h')
                 .default_value("true")
                 .value_name("true | false")
-                .help("Consider the first line in the file as labels to columns. They are also used as sql column names unless specified otherwise."))
+                .help("Consider the first line in the file as headers to columns. They are also used as sql column names unless specified otherwise."))
         .arg(Arg::new("table")
                 .long("table")
                 .short('t')
@@ -40,7 +40,7 @@ fn main() {
         .arg(Arg::new("columns")
                 .long("column")
                 .short('c')
-                .required_if_eq("labels", "false")
+                .required_if_eq("headers", "false")
                 .multiple_occurrences(true)
                 .value_name("database_column_names")
                 .help("Columns of the database table if different from the name of the labels."))
@@ -66,6 +66,10 @@ fn main() {
     };
 }
 
+fn get_fields_from_header(record: &csv::StringRecord) {
+    println!("Header: {:?}", record);
+}
+
 fn process_csv(args: Arguments) -> Result<(), io::Error> {
     if !Path::new(args.csv.as_str()).exists() {
         return Err(io::Error::new(io::ErrorKind::NotFound, "CSV file not found"));
@@ -74,21 +78,14 @@ fn process_csv(args: Arguments) -> Result<(), io::Error> {
     let f = File::open(args.csv)?;
     let reader = io::BufReader::new(f);
     let mut csv_reader = csv::ReaderBuilder::new()
-                .has_headers(false) //args.has_labels)
+                .has_headers(args.has_headers)
                 .from_reader(reader);
 
-    let mut read_header = args.has_labels != false;
+    get_fields_from_header(csv_reader.headers()?);
 
     for result in csv_reader.records() {
         match result {
-            Ok(record) => {
-                if read_header {
-                    println!("Header: {:?}", record);
-                    read_header = false;
-                } else {
-                    println!("{:?}", record)
-                }
-            },
+            Ok(record) => println!("{:?}", record),
             Err(err) => {
                 println!("Error reading CSV from file: {}", err);
                 process::exit(1);
@@ -102,7 +99,7 @@ fn process_csv(args: Arguments) -> Result<(), io::Error> {
 struct Arguments {
     csv          : String,
     separator    : String,
-    has_labels   : bool,
+    has_headers  : bool,
     table        : String,
     columns      : Vec<String>,
     chunk        : usize,
@@ -113,7 +110,7 @@ fn load_arguments(matches: ArgMatches) -> Arguments {
     let mut arguments = Arguments{
         csv: String::from(""),
         separator: String::from(""),
-        has_labels: true,
+        has_headers: true,
         table: String::from(""),
         columns: Vec::new(),
         chunk: 0,
@@ -132,9 +129,9 @@ fn load_arguments(matches: ArgMatches) -> Arguments {
         }
     }
 
-    if let Some(labels) = matches.value_of("labels") {
-        let has_labels: Result<bool, ParseBoolError> = FromStr::from_str(labels);
-        arguments.has_labels = has_labels.ok().unwrap();
+    if let Some(headers) = matches.value_of("headers") {
+        let has_headers: Result<bool, ParseBoolError> = FromStr::from_str(headers);
+        arguments.has_headers = has_headers.ok().unwrap();
     }
 
     if let Some(table) = matches.value_of("table") {
