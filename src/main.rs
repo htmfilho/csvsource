@@ -74,11 +74,21 @@ fn process_csv(args: Arguments) -> Result<(), io::Error> {
     let f = File::open(args.csv)?;
     let reader = io::BufReader::new(f);
     let mut csv_reader = csv::ReaderBuilder::new()
-                .has_headers(args.has_labels)
+                .has_headers(false) //args.has_labels)
                 .from_reader(reader);
+
+    let mut read_header = args.has_labels != false;
+
     for result in csv_reader.records() {
         match result {
-            Ok(record) => println!("{:?}", record),
+            Ok(record) => {
+                if read_header {
+                    println!("Header: {:?}", record);
+                    read_header = false;
+                } else {
+                    println!("{:?}", record)
+                }
+            },
             Err(err) => {
                 println!("Error reading CSV from file: {}", err);
                 process::exit(1);
