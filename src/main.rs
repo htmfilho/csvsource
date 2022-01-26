@@ -35,6 +35,7 @@ fn main() {
         .arg(Arg::new("table")
                 .long("table")
                 .short('t')
+                .default_value("table")
                 .value_name("database_table_name")
                 .help("Database table name if it is different from the name of the CSV file."))
         .arg(Arg::new("columns")
@@ -66,8 +67,18 @@ fn main() {
     };
 }
 
-fn get_fields_from_header(record: &csv::StringRecord) {
-    println!("Header: {:?}", record);
+fn get_insert_fields(table: &str, record: &csv::StringRecord) -> String {
+    let mut insert_fields = String::from("insert into ");
+    insert_fields.push_str(table);
+    insert_fields.push_str(" (");
+    let mut separator = "";
+    for result in record {
+        insert_fields.push_str(separator);
+        insert_fields.push_str(result);
+        separator = ", "
+    }
+    insert_fields.push_str(") values (");
+    return insert_fields;
 }
 
 fn process_csv(args: Arguments) -> Result<(), io::Error> {
@@ -81,7 +92,8 @@ fn process_csv(args: Arguments) -> Result<(), io::Error> {
                 .has_headers(args.has_headers)
                 .from_reader(reader);
 
-    get_fields_from_header(csv_reader.headers()?);
+    let insert_fields = get_insert_fields(args.table.as_str() ,csv_reader.headers()?);
+    println!("{}", insert_fields);
 
     for result in csv_reader.records() {
         match result {
@@ -157,3 +169,8 @@ fn load_arguments(matches: ArgMatches) -> Arguments {
     
     return arguments;
 }
+
+//fn get_file_name_without_extension(csv_file_name: &String) -> String {
+//    let last_dot_pos = csv_file_name.rfind('.');
+//    let file_name = csv_file_name[..last_dot_pos];
+//}
