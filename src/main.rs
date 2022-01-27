@@ -81,7 +81,7 @@ fn process_csv(args: Arguments) -> Result<(), io::Error> {
 
     for result in csv_reader.records() {
         match result {
-            Ok(record) => println!("\n{} {:?}", insert_fields, record),
+            Ok(record) => println!("\n{} values {};", insert_fields, get_values(&record)),
             Err(err) => {
                 println!("Error reading CSV from file: {}", err);
                 process::exit(1);
@@ -92,18 +92,32 @@ fn process_csv(args: Arguments) -> Result<(), io::Error> {
     return Ok(());
 }
 
-fn get_insert_fields(table: &str, record: &csv::StringRecord) -> String {
+fn get_insert_fields(table: &str, headers: &csv::StringRecord) -> String {
     let mut insert_fields = String::from("insert into ");
     insert_fields.push_str(table);
     insert_fields.push_str(" (");
     let mut separator = "";
-    for result in record {
+    for result in headers {
         insert_fields.push_str(separator);
         insert_fields.push_str(result);
         separator = ", "
     }
-    insert_fields.push_str(") values (");
+    insert_fields.push_str(")");
     return insert_fields;
+}
+
+fn get_values(record: &csv::StringRecord) -> String {
+    let mut values = String::from("(");
+    let mut separator = "";
+    for result in record {
+        values.push_str(separator);
+        values.push_str("'");
+        values.push_str(result);
+        values.push_str("'");
+        separator = ", "
+    }
+    values.push_str(")");
+    return values;
 }
 
 struct Arguments {
