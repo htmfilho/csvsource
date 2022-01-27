@@ -66,20 +66,6 @@ fn main() {
     };
 }
 
-fn get_insert_fields(table: &str, record: &csv::StringRecord) -> String {
-    let mut insert_fields = String::from("insert into ");
-    insert_fields.push_str(table);
-    insert_fields.push_str(" (");
-    let mut separator = "";
-    for result in record {
-        insert_fields.push_str(separator);
-        insert_fields.push_str(result);
-        separator = ", "
-    }
-    insert_fields.push_str(") values (");
-    return insert_fields;
-}
-
 fn process_csv(args: Arguments) -> Result<(), io::Error> {
     if !Path::new(args.csv.as_str()).exists() {
         return Err(io::Error::new(io::ErrorKind::NotFound, "CSV file not found"));
@@ -92,11 +78,10 @@ fn process_csv(args: Arguments) -> Result<(), io::Error> {
                 .from_reader(reader);
 
     let insert_fields = get_insert_fields(args.table.as_str() ,csv_reader.headers()?);
-    println!("{}", insert_fields);
 
     for result in csv_reader.records() {
         match result {
-            Ok(record) => println!("{:?}", record),
+            Ok(record) => println!("\n{} {:?}", insert_fields, record),
             Err(err) => {
                 println!("Error reading CSV from file: {}", err);
                 process::exit(1);
@@ -105,6 +90,20 @@ fn process_csv(args: Arguments) -> Result<(), io::Error> {
     }
 
     return Ok(());
+}
+
+fn get_insert_fields(table: &str, record: &csv::StringRecord) -> String {
+    let mut insert_fields = String::from("insert into ");
+    insert_fields.push_str(table);
+    insert_fields.push_str(" (");
+    let mut separator = "";
+    for result in record {
+        insert_fields.push_str(separator);
+        insert_fields.push_str(result);
+        separator = ", "
+    }
+    insert_fields.push_str(") values (");
+    return insert_fields;
 }
 
 struct Arguments {
