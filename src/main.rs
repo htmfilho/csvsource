@@ -35,7 +35,6 @@ fn main() {
         .arg(Arg::new("table")
                 .long("table")
                 .short('t')
-                .default_value("table")
                 .value_name("database_table_name")
                 .help("Database table name if it is different from the name of the CSV file."))
         .arg(Arg::new("columns")
@@ -146,8 +145,10 @@ fn load_arguments(matches: ArgMatches) -> Arguments {
         arguments.has_headers = has_headers.ok().unwrap();
     }
 
-    if let Some(table) = matches.value_of("table") {
-        arguments.table = String::from(table);
+    let table = matches.value_of("table");
+    match table {
+        Some(tbl) => arguments.table = String::from(tbl),
+        None => arguments.table = get_file_name_without_extension(&arguments.csv),
     }
 
     if let Some(cols) = matches.values_of("columns") {
@@ -170,7 +171,16 @@ fn load_arguments(matches: ArgMatches) -> Arguments {
     return arguments;
 }
 
-//fn get_file_name_without_extension(csv_file_name: &String) -> String {
-//    let last_dot_pos = csv_file_name.rfind('.');
-//    let file_name = csv_file_name[..last_dot_pos];
-//}
+fn get_file_name_without_extension(csv_file_name: &String) -> String {
+    let last_dot_pos = csv_file_name.rfind('.');
+    let last_slash_pos = csv_file_name.rfind('/');
+    match last_dot_pos {
+        Some(pos_dot) => {
+            match last_slash_pos {
+                Some(pos_slash) => return csv_file_name[(pos_slash + 1)..pos_dot].to_string(),
+                None => return csv_file_name[..pos_dot].to_string(),
+            }
+        },
+        None => return csv_file_name.to_string(),
+    }
+}
