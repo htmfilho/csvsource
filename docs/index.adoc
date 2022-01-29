@@ -12,6 +12,8 @@ v0.0.0
 
 == Why Roma
 
+image::images/waterloo_tree_inventory.png[Waterloo Tree Inventory]
+
 Using cloud providers to run our business has been a game changer. They allow us to rapidly provision all the resources to ensure high availability, security, and performance. In many cases, They also manage resources for us, considerably reducing complexity and saving time. However, the more control we delegate to them the less autonomy we have over those resources. This is a good thing because it pushes towards the adoption of good practices, but it can also be challenging sometimes.
 
 Take the provision of a managed PostgreSQL Server on Azure, for example. Azure ensures it is optimally configured for our needs, but it is quite limited when it comes to seeding the database using a CSV file. This is relatively easy doing with direct access to the server, but not possible to do in a managed instance.
