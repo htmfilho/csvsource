@@ -109,16 +109,16 @@ fn get_values(record: &csv::StringRecord) -> String {
     let mut separator = "";
     for result in record {
         values.push_str(separator);
-        if !is_number(String::from(result)) {
-            values.push_str("'");
-        }
-        if result.is_empty() {
-            values.push_str("NULL");
-        } else {
+        if is_number(String::from(result)) {
             values.push_str(result);
-        }
-        if !is_number(String::from(result)) {
-            values.push_str("'");
+        } else {
+            if result.is_empty() {
+                values.push_str("NULL");
+            } else {
+                values.push_str("'");
+                values.push_str(result);
+                values.push_str("'");
+            }
         }
         separator = ", "
     }
@@ -127,6 +127,10 @@ fn get_values(record: &csv::StringRecord) -> String {
 }
 
 fn is_number(str: String) -> bool {
+    if str.is_empty() {
+        return false;
+    }
+
     for c in str.chars() {
         if !c.is_numeric() {
             return is_decimal(str);
