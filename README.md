@@ -7,3 +7,9 @@ Roma is a command line tool writen in Rust to convert a CSV file to SQL insert s
 learn how to use Roma with the `--help` argument:
 
     $ ./roma --help
+
+The simplest approach is to pass the argument `--csv` followed by a csv file:
+
+    $ ./roma --csv data.csv
+
+For more information, read the [documentation](https://www.hildeberto.com/roma/).
