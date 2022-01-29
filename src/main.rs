@@ -140,7 +140,6 @@ fn is_number(str: String) -> bool {
 }
 
 fn is_decimal(str: String) -> bool {
-
     let test = str.parse::<f64>();
 
     match test {

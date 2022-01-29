@@ -472,10 +472,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Using cloud providers to run our business has been a game changer. They allow us to rapidly provision all the resources to ensure high availability, security, and performance. In many cases, They also manage resources for us, considerably reducing complexity and saving time. However, the more control we delegate to them the less autonomy we have over those resources. This is a good thing because it pushes towards the adoption of good practices, but it can also be challenging sometimes.</p>
 </div>
 <div class="paragraph">
-<p>Take the provision of a managed PostgreSQL Server on Azure, for example. Azure ensures it is optimally configured for our needs, but it is quite limited when it comes to seeding the database using a CSV file. This is relatively easy doing with direct access to the server, but absolutely impossible to do in a managed instance.</p>
+<p>Take the provision of a managed PostgreSQL Server on Azure, for example. Azure ensures it is optimally configured for our needs, but it is quite limited when it comes to seeding the database using a CSV file. This is relatively easy doing with direct access to the server, but not possible to do in a managed instance.</p>
 </div>
 <div class="paragraph">
-<p>To solve this problem to all platforms, all cloud providers, and all SQL databases, we have developed a simple tool capable of converting a CSV file into a SQL file, where entries turn into insert statements. It is called Roma. All you need after using Roma is a mean to execute the final script, which is something we are pretty well served.</p>
+<p>To solve this problem to all platforms, all cloud providers, and all SQL databases, we have developed a simple tool capable of converting a CSV file into a SQL file, where records turn into insert statements. All you need after using Roma is a mean to execute the final SQL script.</p>
 </div>
 </div>
 </div>
@@ -496,10 +496,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>the name of the CSV file is used as the name of the table in the insert statement</p>
 </li>
 <li>
-<p>the first line is skipped because it labels the data</p>
+<p>the first line is skipped because it contains the headers that describe the data</p>
 </li>
 <li>
-<p>the labels in the first line are used as columns of the table</p>
+<p>the headers in the first line are used as columns of the table</p>
 </li>
 <li>
 <p>the column separator is comma</p>
@@ -508,12 +508,15 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>each line in the CSV turns into an insert statement</p>
 </li>
 <li>
-<p>all values were considered as string, even the numeric target_code.</p>
+<p>if the value contains at least one alphanumeric character then it is quoted.</p>
+</li>
+<li>
+<p>if the value contains a valid number then it is not quoted.</p>
 </li>
 </ul>
 </div>
 <div class="paragraph">
-<p>These default behaviours can be changed using more arguments. For example, to set the table name different from the CSV file name, use:</p>
+<p>These default behaviours can be changed using arguments. For example, to set a table name different from the CSV file name, use:</p>
 </div>
 <div class="literalblock">
 <div class="content">
@@ -521,7 +524,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="paragraph">
-<p>If the first line contains data instead of labels then indicate it using:</p>
+<p>If the first line contains data instead of headers then indicate it using:</p>
 </div>
 <div class="literalblock">
 <div class="content">
@@ -575,7 +578,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="footer">
 <div id="footer-text">
 Version 0.0.0<br>
-Last updated 2022-01-03 12:46:44 -0500
+Last updated 2022-01-29 16:46:41 -0500
 </div>
 </div>
 </body>
