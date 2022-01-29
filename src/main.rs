@@ -109,13 +109,40 @@ fn get_values(record: &csv::StringRecord) -> String {
     let mut separator = "";
     for result in record {
         values.push_str(separator);
-        values.push_str("'");
-        values.push_str(result);
-        values.push_str("'");
+        if !is_number(String::from(result)) {
+            values.push_str("'");
+        }
+        if result.is_empty() {
+            values.push_str("NULL");
+        } else {
+            values.push_str(result);
+        }
+        if !is_number(String::from(result)) {
+            values.push_str("'");
+        }
         separator = ", "
     }
     values.push_str(")");
     return values;
+}
+
+fn is_number(str: String) -> bool {
+    for c in str.chars() {
+        if !c.is_numeric() {
+            return is_decimal(str);
+        }
+    }
+    return true;
+}
+
+fn is_decimal(str: String) -> bool {
+
+    let test = str.parse::<f64>();
+
+    match test {
+        Ok(_ok) => return true,
+        Err(_e) => return false, 
+    }
 }
 
 struct Arguments {
