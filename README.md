@@ -12,4 +12,4 @@ The simplest approach is to pass the argument `--csv` followed by a csv file:
 
     $ ./roma --csv data.csv
 
-For more information, read the [documentation](https://www.hildeberto.com/roma/).
+It generates the `data.sql` file containing the insert statements. For more information, read the [documentation](https://www.hildeberto.com/roma/).
