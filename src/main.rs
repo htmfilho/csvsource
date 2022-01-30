@@ -2,6 +2,7 @@ use clap::{Arg, ArgMatches, App, ErrorKind};
 
 use std::fs::File;
 use std::io;
+use std::io::{BufWriter, Write};
 use std::path::Path;
 use std::process;
 use std::result::Result;
@@ -71,17 +72,19 @@ fn process_csv(args: Arguments) -> Result<(), io::Error> {
         return Err(io::Error::new(io::ErrorKind::NotFound, "CSV file not found"));
     }
 
-    let f = File::open(args.csv)?;
-    let reader = io::BufReader::new(f);
+    let csv_file = File::open(args.csv.clone())?;
+    let reader = io::BufReader::new(csv_file);
     let mut csv_reader = csv::ReaderBuilder::new()
                 .has_headers(args.has_headers)
                 .from_reader(reader);
 
     let insert_fields = get_insert_fields(csv_reader.headers()?);
-
+ 
+    let sql_file = File::create(get_file_name_without_extension(&args.csv) + ".sql").expect("Unable to create file");
+    let mut writer = BufWriter::new(sql_file);
     for result in csv_reader.records() {
         match result {
-            Ok(record) => println!("\ninsert into {} {} values {};", args.table.as_str(), insert_fields, get_values(&record)),
+            Ok(record) => writeln!(writer, "\ninsert into {} {} \nvalues {};", args.table.as_str(), insert_fields, get_values(&record))?,
             Err(err) => {
                 println!("Error reading CSV from file: {}", err);
                 process::exit(1);
