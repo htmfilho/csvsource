@@ -12,8 +12,6 @@ v0.0.0
 
 == Why Roma
 
-image::images/waterloo_tree_inventory.png[Waterloo Tree Inventory]
-
 Using cloud providers to run our business has been a game changer. They allow us to rapidly provision all the resources to ensure high availability, security, and performance. In many cases, They also manage resources for us, considerably reducing complexity and saving time. However, the more control we delegate to them the less autonomy we have over those resources. This is a good thing because it pushes towards the adoption of good practices, but it can also be challenging sometimes.
 
 Take the provision of a managed PostgreSQL Server on Azure, for example. Azure ensures it is optimally configured for our needs, but it is quite limited when it comes to seeding the database using a CSV file. This is relatively easy doing with direct access to the server, but not possible to do in a managed instance.
@@ -21,6 +19,12 @@ Take the provision of a managed PostgreSQL Server on Azure, for example. Azure e
 To solve this problem to all platforms, all cloud providers, and all SQL databases, we have developed a simple tool capable of converting a CSV file into a SQL file, where records turn into insert statements. All you need after using Roma is a mean to execute the final SQL script.
 
 == Using Rome
+
+The https://waterloo.ca[City of Waterloo], located in Ontario, Canadá, has an https://data.waterloo.ca[Open Data Portal]. It publishes raw data about infrastructure, services, environment, transportation, etc. Residents can use the data to oversee public investments and services, identify gaps, discover development opportunities, and even create new business. For us, this portal is useful to test Roma. There is an interesting dataset we want to start with: an https://data.waterloo.ca/datasets/street-tree-inventory[inventory of every single tree planted in the streets] of Waterloo.
+
+image::images/waterloo_tree_inventory.png[Waterloo Tree Inventory]
+
+This dataset is available in the folder https://github.com/htmfilho/roma/tree/main/examples[/examples]. We can process it with the following command:
 
     $ ./roma --csv waterloo_tree_inventory.csv
 
