@@ -168,7 +168,9 @@ struct Arguments {
     table        : String,
     columns      : Vec<String>,
     chunk        : usize,
-    chunk_insert : usize
+    chunk_insert : usize,
+    prefix       : String,
+    suffix       : String
 }
 
 fn load_arguments(matches: ArgMatches) -> Arguments {
@@ -180,6 +182,8 @@ fn load_arguments(matches: ArgMatches) -> Arguments {
         columns: Vec::new(),
         chunk: 0,
         chunk_insert: 0,
+        prefix: String::from(""),
+        suffix: String::from(""),
     };
 
     if let Some(csv) = matches.value_of("csv") {
@@ -220,6 +224,14 @@ fn load_arguments(matches: ArgMatches) -> Arguments {
 
     if let Some(insert_chunk) = matches.value_of("chunk_insert") {
         arguments.chunk_insert = String::from(insert_chunk).parse::<usize>().unwrap();
+    }
+
+    if let Some(prefix) = matches.value_of("prefix") {
+        arguments.prefix = String::from(prefix);
+    }
+
+    if let Some(suffix) = matches.value_of("suffix") {
+        arguments.suffix = String::from(suffix);
     }
     
     return arguments;
