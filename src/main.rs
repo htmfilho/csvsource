@@ -57,6 +57,16 @@ fn main() {
                 .default_value("0")
                 .value_name("#")
                 .help("Size of the insert chunk, indicating how many lines of the CSV files will be put in a single insert statement."))
+        .arg(Arg::new("prefix")
+                .long("prefix")
+                .short('p')
+                .value_name("file")
+                .help("File with the content to prefix the sql file. Example: it can be used to create the target table."))
+        .arg(Arg::new("suffix")
+                .long("suffix")
+                .short('x')
+                .value_name("file")
+                .help("File with the content to suffix the sql file. Example: it can be used to create indexes."))
         .get_matches();
 
     let args = load_arguments(matches);
