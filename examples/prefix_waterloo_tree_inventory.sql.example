@@ -1,0 +1,48 @@
+CREATE TABLE IF NOT EXISTS CITY_TREE (
+    COORD_X                  NUMERIC(16, 13)
+    COORD_Y                  NUMERIC(16, 13)
+    OBJECT_ID                BIGINT
+    TREE_ID                  BIGINT
+    CIVIC_NO                 INTEGER
+    STREET                   VARCHAR(100)
+    LOCATION                 VARCHAR(100)
+    SPECIES_NAME             VARCHAR(100)
+    SPECIES_LATIN            VARCHAR(100)
+    SPECIES_CODE             VARCHAR(20)
+    LAND_USE                 VARCHAR(20)
+    ROAD_SEGMENT_ID          INTEGER
+    PARK                     VARCHAR(100)
+    WARD                     INTEGER
+    PLANTED_BY               VARCHAR(100)
+    MONTH_PLANTED            VARCHAR(20)
+    YEAR_PLANTED             NUMERIC(4,0)
+    STOCK_TYPE               VARCHAR(100)
+    STOCK_SIZE               VARCHAR(20)
+    STATUS                   VARCHAR(20)
+    STATUS_DATE              TIMESTAMP
+    CREATE_BY                VARCHAR(100)
+    CREATE_DATE              TIMESTAMP
+    CREATE_YEAR              NUMERIC(4,0)
+    CREATE_MONTH             VARCHAR(20)
+    UPDATE_BY                VARCHAR(20)
+    UPDATE_DATE              TIMESTAMP
+    SOURCE                   VARCHAR(100)
+    SOURCE_DATE              TIMESTAMP
+    OWNERSHIP                VARCHAR(20)
+    CATEGORY                 VARCHAR(100)
+    ROOT_PATHWAYS            CHARACTER(1)
+    SOIL_VOLUME_M3           VARCHAR(20)
+    INITIAL_ACCEPTANCE_DATE  TIMESTAMP
+    FINAL_ACCEPTANCE_DATE    TIMESTAMP
+    OVERHEAD_HYDRO           VARCHAR(20)
+    DEVELOPMENT_AGE          NUMERIC(4,0)
+    PLANNING_COMMUNITY       VARCHAR(100)
+    SUB_WATERSHED            VARCHAR(100)
+    MAP_DBH_CM               INTEGER
+    GIS_NOTES                VARCHAR(255)
+    HEIGHT_ESTM_LIDAR_2014_M INTEGER
+    HEIGHT_ESTM_LIDAR_2019_M INTEGER
+    TAG                      VARCHAR(20)
+    GLOBAL_ID                VARCHAR(50)
+    INSPECTED_YEAR           NUMERIC(4,0)
+);
