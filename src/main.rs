@@ -122,21 +122,27 @@ fn get_values(record: &csv::StringRecord) -> String {
     let mut separator = "";
     for result in record {
         values.push_str(separator);
-        if is_number(String::from(result)) {
-            values.push_str(result);
-        } else {
-            if result.is_empty() {
-                values.push_str("NULL");
-            } else {
-                values.push_str("'");
-                values.push_str(result);
-                values.push_str("'");
-            }
-        }
+        values.push_str(&get_value(result));
         separator = ", "
     }
     values.push_str(")");
     return values;
+}
+
+fn get_value(result: &str) -> String {
+    let mut value = String::new();
+    if is_number(String::from(result)) {
+        value.push_str(result);
+    } else {
+        if result.is_empty() {
+            value.push_str("NULL");
+        } else {
+            value.push_str("'");
+            value.push_str(&result.replace("'", "''"));
+            value.push_str("'");
+        }
+    }
+    return value;
 }
 
 fn is_number(str: String) -> bool {
