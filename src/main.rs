@@ -4,7 +4,6 @@ use std::fs::File;
 use std::io;
 use std::io::{BufWriter, Write};
 use std::path::Path;
-use std::process;
 use std::result::Result;
 use std::str::FromStr;
 use std::str::ParseBoolError;
@@ -95,10 +94,7 @@ fn process_csv(args: Arguments) -> Result<(), io::Error> {
     for result in csv_reader.records() {
         match result {
             Ok(record) => writeln!(writer, "\ninsert into {} {} \nvalues {};", args.table.as_str(), insert_fields, get_values(&record))?,
-            Err(err) => {
-                println!("Error reading CSV from file: {}", err);
-                process::exit(1);
-            }
+            Err(e) => return Err(io::Error::new(io::ErrorKind::InvalidData, e))
         }
     }
 
