@@ -83,12 +83,15 @@ fn process_csv(args: Arguments) -> Result<(), io::Error> {
 
     let csv_file = File::open(args.csv.clone())?;
     let reader = io::BufReader::new(csv_file);
-    let mut csv_reader = csv::ReaderBuilder::new()
+    let csv_reader = csv::ReaderBuilder::new()
                 .has_headers(args.has_headers)
                 .from_reader(reader);
 
+    return generate_sql(args, csv_reader);
+}
+
+fn generate_sql(args: Arguments, mut csv_reader: csv::Reader<std::io::BufReader<std::fs::File>>)  -> Result<(), io::Error> {
     let insert_fields = get_insert_fields(csv_reader.headers()?);
- 
     let sql_file = File::create(get_file_name_without_extension(&args.csv) + ".sql").expect("Unable to create file");
     let mut writer = BufWriter::new(sql_file);
     for result in csv_reader.records() {
