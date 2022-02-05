@@ -94,15 +94,22 @@ fn generate_sql(args: Arguments, mut csv_reader: csv::Reader<std::io::BufReader<
     let insert_fields = get_insert_fields(csv_reader.headers()?);
     let sql_file = File::create(get_file_name_without_extension(&args.csv) + ".sql").expect("Unable to create file");
     let mut writer = BufWriter::new(sql_file);
+    
+    include_prefix();
     for result in csv_reader.records() {
         match result {
             Ok(record) => writeln!(writer, "\ninsert into {} {} \nvalues {};", args.table.as_str(), insert_fields, get_values(&record))?,
             Err(e) => return Err(io::Error::new(io::ErrorKind::InvalidData, e))
         }
     }
+    include_suffix();
 
     return Ok(());
 }
+
+fn include_prefix() {}
+
+fn include_suffix() {}
 
 fn get_insert_fields(headers: &csv::StringRecord) -> String {
     let mut insert_fields = String::from("(");
