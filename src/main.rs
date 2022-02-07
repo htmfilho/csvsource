@@ -3,6 +3,7 @@ use clap::{Arg, ArgMatches, App, ErrorKind};
 use std::fs::File;
 use std::io;
 use std::io::{BufWriter, Write};
+use std::io::prelude::*;
 use std::path::Path;
 use std::result::Result;
 use std::str::FromStr;
@@ -95,21 +96,28 @@ fn generate_sql(args: Arguments, mut csv_reader: csv::Reader<io::BufReader<File>
     let sql_file = File::create(get_file_name_without_extension(&args.csv) + ".sql").expect("Unable to create file");
     let mut writer = BufWriter::new(sql_file);
     
-    include_prefix();
+    append_file_content(args.prefix, &mut writer);
     for result in csv_reader.records() {
         match result {
             Ok(record) => writeln!(writer, "\ninsert into {} {} \nvalues {};", args.table.as_str(), insert_fields, get_values(&record))?,
             Err(e) => return Err(io::Error::new(io::ErrorKind::InvalidData, e))
         }
     }
-    include_suffix();
+    append_file_content(args.suffix, &mut writer);
 
     return Ok(());
 }
 
-fn include_prefix() {}
+fn append_file_content(path: String, writer: &mut BufWriter<File>) -> Result<(), io::Error> {
+    let file = File::open(path)?;
+    let reader = io::BufReader::new(file);
 
-fn include_suffix() {}
+    for line in reader.lines() {
+        writeln!(writer, "{}", line?)?;
+    }
+
+    Ok(())
+}
 
 fn get_insert_fields(headers: &csv::StringRecord) -> String {
     let mut insert_fields = String::from("(");
@@ -168,8 +176,8 @@ fn is_decimal(str: String) -> bool {
     let test = str.parse::<f64>();
 
     match test {
-        Ok(_ok) => return true,
-        Err(_e) => return false, 
+        Ok(_) => return true,
+        Err(_) => return false, 
     }
 }
 
