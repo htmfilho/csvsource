@@ -96,14 +96,20 @@ fn generate_sql(args: Arguments, mut csv_reader: csv::Reader<io::BufReader<File>
     let sql_file = File::create(get_file_name_without_extension(&args.csv) + ".sql").expect("Unable to create file");
     let mut writer = BufWriter::new(sql_file);
     
-    append_file_content(args.prefix, &mut writer);
+    if let Err(err) = append_file_content(args.prefix, &mut writer) {
+        return Err(err);
+    }
+    
     for result in csv_reader.records() {
         match result {
             Ok(record) => writeln!(writer, "\ninsert into {} {} \nvalues {};", args.table.as_str(), insert_fields, get_values(&record))?,
             Err(e) => return Err(io::Error::new(io::ErrorKind::InvalidData, e))
         }
     }
-    append_file_content(args.suffix, &mut writer);
+
+    if let Err(err) = append_file_content(args.suffix, &mut writer) {
+        return Err(err);
+    }
 
     return Ok(());
 }
