@@ -157,6 +157,8 @@ fn get_value(result: &str) -> String {
     let mut value = String::new();
     if is_number(String::from(result)) {
         value.push_str(result);
+    } else if is_boolean(String::from(result)) {
+        value.push_str(result);
     } else {
         if result.is_empty() {
             value.push_str("NULL");
@@ -189,6 +191,13 @@ fn is_decimal(str: String) -> bool {
         Ok(_) => return true,
         Err(_) => return false, 
     }
+}
+
+fn is_boolean(str: String) -> bool {
+    let tr: String = String::from("true");
+    let fs: String = String::from("false");
+
+    return tr.eq(&str.to_lowercase()) || fs.eq(&str.to_lowercase());
 }
 
 struct Arguments {
