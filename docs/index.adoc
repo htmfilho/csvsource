@@ -54,11 +54,11 @@ If the file is using `tab` or `semicolon` characters as value delimiters, instea
 
 If you need to put some SQL statements or documentation before the generated statements, at the beginning of the file, use the argument `--prefix` or `-p`:
 
-    --prefix prefix_waterloo_tree_inventory.sql
+    --prefix waterloo_tree_inventory_prefix.sql
 
 We also support putting content at the end of the file, using the argument `--suffix` or `-s`:
 
-    --suffix suffix_waterloo_tree_inventory.sql
+    --suffix waterloo_tree_inventory_suffix.sql
 
 === Pending Arguments
 
