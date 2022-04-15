@@ -187,9 +187,9 @@ fn is_number(str: String) -> bool {
 fn is_decimal(str: String) -> bool {
     let test = str.parse::<f64>();
 
-    match test {
-        Ok(_) => return true,
-        Err(_) => return false, 
+    return match test {
+        Ok(_) => true,
+        Err(_) => false,
     }
 }
 
@@ -280,13 +280,13 @@ fn load_arguments(matches: ArgMatches) -> Arguments {
 fn get_file_name_without_extension(csv_file_name: &String) -> String {
     let last_dot_pos = csv_file_name.rfind('.');
     let last_slash_pos = csv_file_name.rfind('/');
-    match last_dot_pos {
+    return match last_dot_pos {
         Some(pos_dot) => {
             match last_slash_pos {
-                Some(pos_slash) => return csv_file_name[(pos_slash + 1)..pos_dot].to_string(),
-                None => return csv_file_name[..pos_dot].to_string(),
+                Some(pos_slash) => csv_file_name[(pos_slash + 1)..pos_dot].to_string(),
+                None => csv_file_name[..pos_dot].to_string(),
             }
         },
-        None => return csv_file_name.to_string(),
+        None => csv_file_name.to_string(),
     }
 }
