@@ -449,7 +449,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
 <li><a href="#_why_roma">1. Why Roma</a></li>
-<li><a href="#_using_rome">2. Using Rome</a></li>
+<li><a href="#_using_rome">2. Using Rome</a>
+<ul class="sectlevel2">
+<li><a href="#_supported_arguments">2.1. Supported Arguments</a></li>
+<li><a href="#_pending_arguments">2.2. Pending Arguments</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -459,7 +464,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="quoteblock">
 <blockquote>
 <div class="paragraph">
-<p>Roma is a command line tool writen in Rust to convert a CSV file to SQL insert statements. It has special features like grouping insert statements in transaction chunks and inserting multiple rows with a single insert statement.</p>
+<p>Roma is a command line tool written in Rust to convert a CSV file to SQL statements. It has special features like grouping insert statements in transaction chunks and inserting multiple rows with a single insert statement.</p>
 </div>
 </blockquote>
 </div>
@@ -475,7 +480,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Take the provision of a managed PostgreSQL Server on Azure, for example. Azure ensures it is optimally configured for our needs, but it is quite limited when it comes to seeding the database using a CSV file. This is relatively easy doing with direct access to the server, but not possible to do in a managed instance.</p>
 </div>
 <div class="paragraph">
-<p>To solve this problem to all platforms, all cloud providers, and all SQL databases, we have developed a simple tool capable of converting a CSV file into a SQL file, where records turn into insert statements. All you need after using Roma is a mean to execute the final SQL script.</p>
+<p>To solve this problem to all platforms, all cloud providers, and all SQL databases, we have developed a simple tool capable of converting a CSV file into a SQL file, where rows turn into insert statements. All you need after using Roma is a mean to execute the generated SQL script.</p>
 </div>
 </div>
 </div>
@@ -499,7 +504,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="paragraph">
-<p>This is what happened by default:</p>
+<p>which generates the sql file <code>waterloo_tree_inventory.sql</code>. This is what happens by default:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -526,8 +531,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 </ul>
 </div>
+<div class="sect2">
+<h3 id="_supported_arguments">2.1. Supported Arguments</h3>
 <div class="paragraph">
-<p>These default behaviours can be changed using arguments. For example, to set a table name different from the CSV file name, use:</p>
+<p>These default behaviours can change using arguments. For example, to set a table name different from the name of the CSV file, use:</p>
 </div>
 <div class="literalblock">
 <div class="content">
@@ -535,34 +542,53 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="paragraph">
-<p>If the first line contains data instead of headers then indicate it using:</p>
+<p>If the first line contains data instead of headers then indicate it using <code>--headers</code> or <code>-h</code>:</p>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>--labels false</pre>
+<pre>--headers false</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>If the labels are not present in the file or they don&#8217;t match the columns of the table then we can customize the columns passing multiple <code>--column</code> or <code>-c</code> arguments, one of each column:</p>
+<p>If the file is using <code>tab</code> or <code>semicolon</code> characters as value delimiters, instead of <code>comma</code>, then specify it with <code>--delimiter</code> or <code>-d</code>:</p>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>--column "coord_x(number)" --column "coord_y(number)" --column "street(text)" --column "species(text)" ...</pre>
+<pre>--delimiter tab</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Note that this argument is required if <code>--label</code> is <code>false</code>.</p>
-</div>
-<div class="paragraph">
-<p>The supported column types are <strong>number</strong>, <strong>text</strong>, and <strong>date</strong>. They are simple because they just define whether the value is sourounded by single cotes or not, or whether dates have to be formatted according to database requirements.</p>
-</div>
-<div class="paragraph">
-<p>If the file is using the <em>tab</em> character as value separator, then specify it this way:</p>
+<p>If you need to put some SQL statements or documentation before the generated statements, at the beginning of the file, use the argument <code>--prefix</code> or <code>-p</code>:</p>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>--separator tab</pre>
+<pre>--prefix prefix_waterloo_tree_inventory.sql</pre>
 </div>
+</div>
+<div class="paragraph">
+<p>We also support putting content at the end of the file, using the argument <code>--suffix</code> or <code>-s</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>--suffix suffix_waterloo_tree_inventory.sql</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_pending_arguments">2.2. Pending Arguments</h3>
+<div class="paragraph">
+<p>There are some arguments that we want to develop in the near future. We ended up documenting them first.</p>
+</div>
+<div class="paragraph">
+<p>If the headers are not present in the file or they don&#8217;t match the columns of the table then we can customize the columns, passing multiple <code>--column</code> or <code>-c</code> arguments, one for each column:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>--column coord_x --column coord_y --column street --column species ...</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note that the <code>--column</code> argument is required if <code>--headers</code> is <code>false</code>.</p>
 </div>
 <div class="paragraph">
 <p>Sometimes the CSV file is too large and generates too many insert statements to the point a single database transaction cannot cope. To create several thransactions throughout the file, use:</p>
@@ -586,10 +612,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 </div>
+</div>
 <div id="footer">
 <div id="footer-text">
 Version 0.0.0<br>
-Last updated 2022-01-30 08:54:14 -0500
+Last updated 2022-04-15 11:18:27 -0400
 </div>
 </div>
 </body>

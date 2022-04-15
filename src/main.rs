@@ -21,23 +21,23 @@ fn main() {
                 .required(true)
                 .takes_value(true)
                 .help("Relative or absolute path to the CSV file. The name of the file is also used was table name unless specified otherwise."))
-        .arg(Arg::new("separator")
-                .long("separator")
-                .short('s')
+        .arg(Arg::new("delimiter")
+                .long("delimiter")
+                .short('d')
                 .default_value("comma")
-                .value_name("comma | tab")
-                .help("The supported CSV separator used in the file."))
+                .value_name("comma | semicolon | tab")
+                .help("The supported CSV delimiter used in the file."))
+        .arg(Arg::new("table")
+                .long("table")
+                .short('t')
+                .value_name("database_table_name")
+                .help("Database table name if it is different from the name of the CSV file."))
         .arg(Arg::new("headers")
                 .long("headers")
                 .short('h')
                 .default_value("true")
                 .value_name("true | false")
                 .help("Consider the first line in the file as headers to columns. They are also used as sql column names unless specified otherwise."))
-        .arg(Arg::new("table")
-                .long("table")
-                .short('t')
-                .value_name("database_table_name")
-                .help("Database table name if it is different from the name of the CSV file."))
         .arg(Arg::new("columns")
                 .long("column")
                 .short('c')
@@ -64,7 +64,7 @@ fn main() {
                 .help("File with the content to prefix the sql file. Example: it can be used to create the target table."))
         .arg(Arg::new("suffix")
                 .long("suffix")
-                .short('x')
+                .short('s')
                 .value_name("file")
                 .help("File with the content to suffix the sql file. Example: it can be used to create indexes."))
         .get_matches();
@@ -72,7 +72,7 @@ fn main() {
     let args = load_arguments(matches);
 
     match process_csv(args) {
-        Ok(()) => println!("CSV file processed successfully!"),
+        Ok(())   => println!("CSV file processed successfully!"),
         Err(err) => println!("Error: {}.", err)
     };
 }
@@ -115,6 +115,10 @@ fn generate_sql(args: Arguments, mut csv_reader: csv::Reader<io::BufReader<File>
 }
 
 fn append_file_content(path: String, writer: &mut BufWriter<File>) -> Result<(), io::Error> {
+    if !Path::new(path.as_str()).exists() {
+        return Ok(());
+    }
+    
     let file = File::open(path)?;
     let reader = io::BufReader::new(file);
 
@@ -122,7 +126,7 @@ fn append_file_content(path: String, writer: &mut BufWriter<File>) -> Result<(),
         writeln!(writer, "{}", line?)?;
     }
 
-    Ok(())
+    return Ok(());
 }
 
 fn get_insert_fields(headers: &csv::StringRecord) -> String {
@@ -189,7 +193,7 @@ fn is_decimal(str: String) -> bool {
 
 struct Arguments {
     csv          : String,
-    separator    : String,
+    delimiter    : u8,
     has_headers  : bool,
     table        : String,
     columns      : Vec<String>,
@@ -202,7 +206,7 @@ struct Arguments {
 fn load_arguments(matches: ArgMatches) -> Arguments {
     let mut arguments = Arguments{
         csv: String::from(""),
-        separator: String::from(""),
+        delimiter: b',',
         has_headers: true,
         table: String::from(""),
         columns: Vec::new(),
@@ -216,11 +220,12 @@ fn load_arguments(matches: ArgMatches) -> Arguments {
         arguments.csv = String::from(csv);
     }
 
-    if let Some(separator) = matches.value_of("separator") {
-        match separator {
-            "comma" => arguments.separator = String::from(separator),
-            "tab"   => arguments.separator = String::from(separator),
-            _ => App::new("Roma").error(ErrorKind::InvalidValue, "Invalid separator. Use 'comma' or 'tab'.").exit()
+    if let Some(delimiter) = matches.value_of("delimiter") {
+        match delimiter {
+            "comma"     => arguments.delimiter = b',',
+            "semicolon" => arguments.delimiter = b';',
+            "tab"       => arguments.delimiter = b'\t',
+            _ => App::new("Roma").error(ErrorKind::InvalidValue, "Invalid delimiter. Use 'comma', 'semicolon', or 'tab'.").exit()
         }
     }
 

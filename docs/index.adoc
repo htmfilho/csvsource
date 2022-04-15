@@ -8,7 +8,7 @@ v0.0.0
 :toclevels: 3
 :numbered:
 
-> Roma is a command line tool writen in Rust to convert a CSV file to SQL insert statements. It has special features like grouping insert statements in transaction chunks and inserting multiple rows with a single insert statement.
+> Roma is a command line tool written in Rust to convert a CSV file to SQL statements. It has special features like grouping insert statements in transaction chunks and inserting multiple rows with a single insert statement.
 
 == Why Roma
 
@@ -16,7 +16,7 @@ Using cloud providers to run our business has been a game changer. They allow us
 
 Take the provision of a managed PostgreSQL Server on Azure, for example. Azure ensures it is optimally configured for our needs, but it is quite limited when it comes to seeding the database using a CSV file. This is relatively easy doing with direct access to the server, but not possible to do in a managed instance.
 
-To solve this problem to all platforms, all cloud providers, and all SQL databases, we have developed a simple tool capable of converting a CSV file into a SQL file, where records turn into insert statements. All you need after using Roma is a mean to execute the final SQL script.
+To solve this problem to all platforms, all cloud providers, and all SQL databases, we have developed a simple tool capable of converting a CSV file into a SQL file, where rows turn into insert statements. All you need after using Roma is a mean to execute the generated SQL script.
 
 == Using Rome
 
@@ -28,7 +28,7 @@ This dataset is available in the folder https://github.com/htmfilho/roma/tree/ma
 
     $ ./roma --csv waterloo_tree_inventory.csv
 
-This is what happened by default:
+which generates the sql file `waterloo_tree_inventory.sql`. This is what happens by default:
 
 - the name of the CSV file is used as the name of the table in the insert statement
 - the first line is skipped because it contains the headers that describe the data
@@ -38,25 +38,37 @@ This is what happened by default:
 - if the value contains at least one alphanumeric character then it is quoted.
 - if the value contains a valid number then it is not quoted.
 
-These default behaviours can be changed using arguments. For example, to set a table name different from the CSV file name, use:
+=== Supported Arguments
+
+These default behaviours can change using arguments. For example, to set a table name different from the name of the CSV file, use:
 
     $ ./roma --csv waterloo_tree_inventory.csv --table TREE_INVENTORY
 
-If the first line contains data instead of headers then indicate it using:
+If the first line contains data instead of headers then indicate it using `--headers` or `-h`:
 
-    --labels false
+    --headers false
 
-If the labels are not present in the file or they don't match the columns of the table then we can customize the columns passing multiple `--column` or `-c` arguments, one of each column:
+If the file is using `tab` or `semicolon` characters as value delimiters, instead of `comma`, then specify it with `--delimiter` or `-d`:
 
-    --column "coord_x(number)" --column "coord_y(number)" --column "street(text)" --column "species(text)" ...
+    --delimiter tab
 
-Note that this argument is required if `--label` is `false`. 
+If you need to put some SQL statements or documentation before the generated statements, at the beginning of the file, use the argument `--prefix` or `-p`:
 
-The supported column types are **number**, **text**, and **date**. They are simple because they just define whether the value is sourounded by single cotes or not, or whether dates have to be formatted according to database requirements.
+    --prefix prefix_waterloo_tree_inventory.sql
 
-If the file is using the _tab_ character as value separator, then specify it this way:
+We also support putting content at the end of the file, using the argument `--suffix` or `-s`:
 
-    --separator tab
+    --suffix suffix_waterloo_tree_inventory.sql
+
+=== Pending Arguments
+
+There are some arguments that we want to develop in the near future. We ended up documenting them first.
+
+If the headers are not present in the file or they don't match the columns of the table then we can customize the columns, passing multiple `--column` or `-c` arguments, one for each column:
+
+    --column coord_x --column coord_y --column street --column species ...
+
+Note that the `--column` argument is required if `--headers` is `false`.
 
 Sometimes the CSV file is too large and generates too many insert statements to the point a single database transaction cannot cope. To create several thransactions throughout the file, use:
 
