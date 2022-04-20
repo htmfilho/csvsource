@@ -18,7 +18,7 @@ Take the provision of a managed PostgreSQL Server on Azure, for example. Azure e
 
 To solve this problem to all platforms, all cloud providers, and all SQL databases, we have developed a simple tool capable of converting a CSV file into a SQL file, where rows turn into insert statements. All you need after using Roma is a mean to execute the generated SQL script.
 
-== Using Rome
+== Using Roma
 
 The https://waterloo.ca[City of Waterloo], located in Ontario, Canadá, has an https://data.waterloo.ca[Open Data Portal]. It publishes raw data about infrastructure, services, environment, transportation, etc. Residents can use the data to oversee public investments and services, identify gaps, discover development opportunities, and even create new business. For us, this portal is useful to test Roma. There is an interesting dataset we want to start with: an https://data.waterloo.ca/datasets/street-tree-inventory[inventory of every single tree planted in the streets] of Waterloo.
 
@@ -79,3 +79,7 @@ It puts chunks of 1000 inserts between `begin transaction` and `commit transacti
     --chunkinsert 250
 
 A proper configuration of `--chunk` and `chunkinsert` can optimize the SQL file maximum performance. In this case, a CSV file with 10000 records would be converted into a SQL with 10 transactions and each transaction would contain 4 inserts with 250 records each.
+
+=== Type Handling
+
+In a SQL insert statement, it is important to know the type of data to generate the right syntax. Strings and dates are delimited by single quotes ('), but numbers and booleans are not. Roma has mechanisms to detect data types, but it can also be unpredictable. Take a value that contains only numbers, but it isn't necessarily numeric, like a social security number. Roma will automatically identify it as numeric, but in another row it finds "none", making it a string.
