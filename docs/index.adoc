@@ -48,6 +48,12 @@ If the first line contains data instead of headers then indicate it using `--hea
 
     --headers false
 
+In case of `--headers false`, the columns must be informed manually, using multiple `--column` or `-c`:
+
+    -h false -c product -c quantity -c price -c expiration -c available
+
+Columns can also be informed with `-h true` because the user may want to customize the columns in the insert statements.
+
 If the file is using `tab` or `semicolon` characters as value delimiters, instead of `comma`, then specify it with `--delimiter` or `-d`:
 
     --delimiter tab

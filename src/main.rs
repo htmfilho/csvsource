@@ -88,27 +88,41 @@ fn process_csv(args: Arguments) -> Result<(), io::Error> {
                 .has_headers(args.has_headers)
                 .from_reader(reader);
 
-    return generate_sql(args, csv_reader);
+    return generate_sql_file(args, csv_reader);
 }
 
-fn generate_sql(args: Arguments, mut csv_reader: csv::Reader<io::BufReader<File>>) -> Result<(), io::Error> {
-    let insert_fields = get_insert_fields(csv_reader.headers()?);
+fn generate_sql_file(args: Arguments, csv_reader: csv::Reader<io::BufReader<File>>) -> Result<(), io::Error> {
     let sql_file = File::create(get_file_name_without_extension(&args.csv) + ".sql").expect("Unable to create file");
     let mut writer = BufWriter::new(sql_file);
     
-    if let Err(err) = append_file_content(args.prefix, &mut writer) {
+    if let Err(err) = append_file_content(args.prefix.clone(), &mut writer) {
         return Err(err);
     }
-    
+
+    if let Err(err) = generate_sql(&args, csv_reader, &mut writer) {
+        return Err(err);
+    }
+
+    if let Err(err) = append_file_content(args.suffix, &mut writer) {
+        return Err(err);
+    }
+
+    return Ok(());
+}
+
+fn generate_sql(args: &Arguments, mut csv_reader: csv::Reader<io::BufReader<File>>, writer: &mut BufWriter<File>) -> Result<(), io::Error> {
+    let insert_fields =
+        if args.columns.is_empty() && args.has_headers {
+            get_insert_fields(csv_reader.headers()?)
+        } else {
+            args.get_insert_fields()
+        };
+
     for result in csv_reader.records() {
         match result {
             Ok(record) => writeln!(writer, "\ninsert into {} {} \nvalues {};", args.table.as_str(), insert_fields, get_values(&record))?,
             Err(e) => return Err(io::Error::new(io::ErrorKind::InvalidData, e))
         }
-    }
-
-    if let Err(err) = append_file_content(args.suffix, &mut writer) {
-        return Err(err);
     }
 
     return Ok(());
@@ -132,11 +146,13 @@ fn append_file_content(path: String, writer: &mut BufWriter<File>) -> Result<(),
 fn get_insert_fields(headers: &csv::StringRecord) -> String {
     let mut insert_fields = String::from("(");
     let mut separator = "";
+
     for result in headers {
         insert_fields.push_str(separator);
         insert_fields.push_str(result);
         separator = ", "
     }
+
     insert_fields.push_str(")");
     return insert_fields;
 }
@@ -209,7 +225,21 @@ struct Arguments {
     chunk        : usize,
     chunk_insert : usize,
     prefix       : String,
-    suffix       : String
+    suffix       : String,
+}
+
+impl Arguments {
+    fn get_insert_fields(&self) -> String {
+        let mut insert_fields = String::from("(");
+        let mut separator = "";
+        for column in &self.columns {
+            insert_fields.push_str(separator);
+            insert_fields.push_str(column.as_str());
+            separator = ", "
+        }
+        insert_fields.push_str(")");
+        return insert_fields;
+    }
 }
 
 fn load_arguments(matches: ArgMatches) -> Arguments {
