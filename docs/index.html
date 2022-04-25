@@ -443,16 +443,17 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="details">
 <span id="author" class="author">Hildeberto Mendonca</span><br>
 <span id="email" class="email"><a href="mailto:me@hildeberto.com">me@hildeberto.com</a></span><br>
-<span id="revnumber">version 0.0.0</span>
+<span id="revnumber">version 0.1.0</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
 <li><a href="#_why_roma">1. Why Roma</a></li>
-<li><a href="#_using_rome">2. Using Rome</a>
+<li><a href="#_using_roma">2. Using Roma</a>
 <ul class="sectlevel2">
 <li><a href="#_supported_arguments">2.1. Supported Arguments</a></li>
 <li><a href="#_pending_arguments">2.2. Pending Arguments</a></li>
+<li><a href="#_type_handling">2.3. Type Handling</a></li>
 </ul>
 </li>
 </ul>
@@ -485,7 +486,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect1">
-<h2 id="_using_rome">2. Using Rome</h2>
+<h2 id="_using_roma">2. Using Roma</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>The <a href="https://waterloo.ca">City of Waterloo</a>, located in Ontario, Canadá, has an <a href="https://data.waterloo.ca">Open Data Portal</a>. It publishes raw data about infrastructure, services, environment, transportation, etc. Residents can use the data to oversee public investments and services, identify gaps, discover development opportunities, and even create new business. For us, this portal is useful to test Roma. There is an interesting dataset we want to start with: an <a href="https://data.waterloo.ca/datasets/street-tree-inventory">inventory of every single tree planted in the streets</a> of Waterloo.</p>
@@ -550,6 +551,17 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="paragraph">
+<p>In case of <code>--headers false</code>, the columns must be informed manually, using multiple <code>--column</code> or <code>-c</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>-h false -c product -c quantity -c price -c expiration -c available</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Columns can also be informed with <code>-h true</code> because the user may want to customize the columns in the insert statements.</p>
+</div>
+<div class="paragraph">
 <p>If the file is using <code>tab</code> or <code>semicolon</code> characters as value delimiters, instead of <code>comma</code>, then specify it with <code>--delimiter</code> or <code>-d</code>:</p>
 </div>
 <div class="literalblock">
@@ -610,13 +622,19 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>A proper configuration of <code>--chunk</code> and <code>chunkinsert</code> can optimize the SQL file maximum performance. In this case, a CSV file with 10000 records would be converted into a SQL with 10 transactions and each transaction would contain 4 inserts with 250 records each.</p>
 </div>
 </div>
+<div class="sect2">
+<h3 id="_type_handling">2.3. Type Handling</h3>
+<div class="paragraph">
+<p>In a SQL insert statement, it is important to know the type of data to generate the right syntax. Strings and dates are delimited by single quotes ('), but numbers and booleans are not. Roma has mechanisms to detect data types, but it can also be unpredictable. Take a value that contains only numbers, but it isn&#8217;t necessarily numeric, like a social security number. Roma will automatically identify it as numeric, but in another row it finds "none", making it a string.</p>
+</div>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 0.0.0<br>
-Last updated 2022-04-15 11:33:00 -0400
+Version 0.1.0<br>
+Last updated 2022-04-25 08:32:50 -0400
 </div>
 </div>
 </body>
