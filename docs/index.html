@@ -592,17 +592,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>There are some arguments that we want to develop in the near future. We ended up documenting them first.</p>
 </div>
 <div class="paragraph">
-<p>If the headers are not present in the file or they don&#8217;t match the columns of the table then we can customize the columns, passing multiple <code>--column</code> or <code>-c</code> arguments, one for each column:</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>--column coord_x --column coord_y --column street --column species ...</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Note that the <code>--column</code> argument is required if <code>--headers</code> is <code>false</code>.</p>
-</div>
-<div class="paragraph">
 <p>Sometimes the CSV file is too large and generates too many insert statements to the point a single database transaction cannot cope. To create several thransactions throughout the file, use:</p>
 </div>
 <div class="literalblock">
@@ -634,7 +623,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="footer">
 <div id="footer-text">
 Version 0.1.0<br>
-Last updated 2022-04-25 08:32:50 -0400
+Last updated 2022-04-25 08:39:19 -0400
 </div>
 </div>
 </body>

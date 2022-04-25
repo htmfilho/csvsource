@@ -70,12 +70,6 @@ We also support putting content at the end of the file, using the argument `--su
 
 There are some arguments that we want to develop in the near future. We ended up documenting them first.
 
-If the headers are not present in the file or they don't match the columns of the table then we can customize the columns, passing multiple `--column` or `-c` arguments, one for each column:
-
-    --column coord_x --column coord_y --column street --column species ...
-
-Note that the `--column` argument is required if `--headers` is `false`.
-
 Sometimes the CSV file is too large and generates too many insert statements to the point a single database transaction cannot cope. To create several thransactions throughout the file, use:
 
     --chunk 1000
