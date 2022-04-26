@@ -1,6 +1,6 @@
 ﻿= Roma : Convert a CSV file to SQL Insert Statements
 Hildeberto Mendonca <me@hildeberto.com>
-v0.1.0
+v0.3.0
 :doctype: book
 :pdf-page-size: LETTER
 :encoding: utf-8
