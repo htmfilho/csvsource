@@ -1,6 +1,6 @@
 ﻿= Roma : Convert a CSV file to SQL Insert Statements
 Hildeberto Mendonca <me@hildeberto.com>
-v0.3.0
+v0.4.0
 :doctype: book
 :pdf-page-size: LETTER
 :encoding: utf-8
@@ -66,15 +66,11 @@ We also support putting content at the end of the file, using the argument `--su
 
     --suffix waterloo_tree_inventory_suffix.txt
 
-=== Pending Arguments
-
-There are some arguments that we want to develop in the near future. We ended up documenting them first.
-
-Sometimes the CSV file is too large and generates too many insert statements to the point a single database transaction cannot cope. To create several thransactions throughout the file, use:
+Sometimes the CSV file is too large and generates too many insert statements to the point a single database transaction cannot cope. To create several transactions throughout the file, use `--chunk` or `-k`:
 
     --chunk 1000
 
-It puts chunks of 1000 inserts between `begin transaction` and `commit transaction`. The insert statements can be further optimized, inserting several records at once by using:
+It puts chunks of 1000 inserts between `begin transaction` and `commit`. The insert statements can be further optimized, inserting several records at once by using:
 
     --chunkinsert 250
 

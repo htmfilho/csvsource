@@ -94,7 +94,11 @@ fn process_csv(args: Arguments) -> Result<(), io::Error> {
 fn generate_sql_file(args: Arguments, csv_reader: csv::Reader<io::BufReader<File>>) -> Result<(), io::Error> {
     let sql_file = File::create(get_file_name_without_extension(&args.csv) + ".sql").expect("Unable to create file");
     let mut writer = BufWriter::new(sql_file);
-    
+
+    if args.chunk == 0 {
+        writeln!(writer, "begin transaction;")?;
+    }
+
     if let Err(err) = append_file_content(args.prefix.clone(), &mut writer) {
         return Err(err);
     }
@@ -105,6 +109,10 @@ fn generate_sql_file(args: Arguments, csv_reader: csv::Reader<io::BufReader<File
 
     if let Err(err) = append_file_content(args.suffix, &mut writer) {
         return Err(err);
+    }
+
+    if args.chunk == 0 {
+        writeln!(writer, "\ncommit;")?;
     }
 
     return Ok(());
@@ -118,11 +126,29 @@ fn generate_sql(args: &Arguments, mut csv_reader: csv::Reader<io::BufReader<File
             args.get_insert_fields()
         };
 
+    let mut chunk_count = 0;
+    let mut print_commit = false;
     for result in csv_reader.records() {
+        if args.chunk > 0 && chunk_count == 0 {
+            writeln!(writer, "begin transaction;")?;
+            print_commit = true;
+        }
+        chunk_count += 1;
+
         match result {
             Ok(record) => writeln!(writer, "\ninsert into {} {} \nvalues {};", args.table.as_str(), insert_fields, get_values(&record))?,
             Err(e) => return Err(io::Error::new(io::ErrorKind::InvalidData, e))
         }
+
+        if args.chunk > 0 && chunk_count == args.chunk && print_commit {
+            writeln!(writer, "\ncommit;")?;
+            chunk_count = 0;
+            print_commit = false;
+        }
+    }
+
+    if print_commit {
+        writeln!(writer, "\ncommit;")?;
     }
 
     return Ok(());
