@@ -127,16 +127,41 @@ fn generate_sql(args: &Arguments, mut csv_reader: csv::Reader<io::BufReader<File
         };
 
     let mut chunk_count = 0;
+    let mut chunk_insert_count = 0;
+    let mut insert_separator = ";";
     let mut print_commit = false;
+    let mut records_count = csv_reader.records().count();
+
     for result in csv_reader.records() {
+        records_count -= 1;
+
         if args.chunk > 0 && chunk_count == 0 {
             writeln!(writer, "begin transaction;")?;
             print_commit = true;
         }
         chunk_count += 1;
 
+        if chunk_insert_count == 0 {
+            write!(writer, "\ninsert into {} {} values\n", args.table.as_str(), insert_fields)?;
+        }
+
+        if args.chunk_insert > 0 {
+            chunk_insert_count += 1;
+
+            if records_count == 0 {
+                insert_separator = ";";
+            } else {
+                insert_separator = ",";
+            }
+
+            if args.chunk_insert == chunk_insert_count {
+                chunk_insert_count = 0;
+                insert_separator = ";";
+            }
+        }
+
         match result {
-            Ok(record) => writeln!(writer, "\ninsert into {} {} \nvalues {};", args.table.as_str(), insert_fields, get_values(&record))?,
+            Ok(record) => writeln!(writer, "{}{}", get_values(&record), insert_separator)?,
             Err(e) => return Err(io::Error::new(io::ErrorKind::InvalidData, e))
         }
 
