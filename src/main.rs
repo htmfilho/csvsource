@@ -96,7 +96,7 @@ fn generate_sql_file(args: Arguments, csv_reader: csv::Reader<io::BufReader<File
     let mut writer = BufWriter::new(sql_file);
 
     if args.chunk == 0 {
-        writeln!(writer, "begin transaction;")?;
+        write!(writer, "begin transaction")?;
     }
 
     if let Err(err) = append_file_content(args.prefix.clone(), &mut writer) {
@@ -130,39 +130,31 @@ fn generate_sql(args: &Arguments, mut csv_reader: csv::Reader<io::BufReader<File
     let mut chunk_insert_count = 0;
     let mut insert_separator = ";";
     let mut print_commit = false;
-    let mut records_count = csv_reader.records().count();
 
-    for result in csv_reader.records() {
-        records_count -= 1;
-
+    for record in csv_reader.records() {
         if args.chunk > 0 && chunk_count == 0 {
-            writeln!(writer, "begin transaction;")?;
+            write!(writer, "begin transaction;")?;
             print_commit = true;
         }
         chunk_count += 1;
 
         if chunk_insert_count == 0 {
-            write!(writer, "\ninsert into {} {} values\n", args.table.as_str(), insert_fields)?;
+            write!(writer, "{}\n\ninsert into {} {} values", insert_separator, args.table.as_str(), insert_fields)?;
+            insert_separator = "";
+        }
+
+        match record {
+            Ok(row) => write!(writer, "{}\n{}", insert_separator, get_values(&row))?,
+            Err(e) => return Err(io::Error::new(io::ErrorKind::InvalidData, e))
         }
 
         if args.chunk_insert > 0 {
             chunk_insert_count += 1;
-
-            if records_count == 0 {
-                insert_separator = ";";
-            } else {
-                insert_separator = ",";
-            }
-
+            insert_separator = ",";
             if args.chunk_insert == chunk_insert_count {
                 chunk_insert_count = 0;
                 insert_separator = ";";
             }
-        }
-
-        match result {
-            Ok(record) => writeln!(writer, "{}{}", get_values(&record), insert_separator)?,
-            Err(e) => return Err(io::Error::new(io::ErrorKind::InvalidData, e))
         }
 
         if args.chunk > 0 && chunk_count == args.chunk && print_commit {
@@ -172,8 +164,10 @@ fn generate_sql(args: &Arguments, mut csv_reader: csv::Reader<io::BufReader<File
         }
     }
 
+    writeln!(writer, ";")?;
+
     if print_commit {
-        writeln!(writer, "\ncommit;")?;
+        writeln!(writer, ";\ncommit;")?;
     }
 
     return Ok(());
