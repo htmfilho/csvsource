@@ -95,10 +95,6 @@ fn generate_sql_file(args: Arguments, csv_reader: csv::Reader<io::BufReader<File
     let sql_file = File::create(get_file_name_without_extension(&args.csv) + ".sql").expect("Unable to create file");
     let mut writer = BufWriter::new(sql_file);
 
-    if args.chunk == 0 {
-        write!(writer, "begin transaction")?;
-    }
-
     if let Err(err) = append_file_content(args.prefix.clone(), &mut writer) {
         return Err(err);
     }
@@ -109,10 +105,6 @@ fn generate_sql_file(args: Arguments, csv_reader: csv::Reader<io::BufReader<File
 
     if let Err(err) = append_file_content(args.suffix, &mut writer) {
         return Err(err);
-    }
-
-    if args.chunk == 0 {
-        writeln!(writer, "\ncommit;")?;
     }
 
     return Ok(());
@@ -130,11 +122,9 @@ fn generate_sql(args: &Arguments, mut csv_reader: csv::Reader<io::BufReader<File
     let mut chunk_insert_count = 0;
     let mut insert_separator = ";";
 
-    for record in csv_reader.records() {
-        if args.chunk > 0 && chunk_count == 0 {
-            write!(writer, "begin transaction")?;
-        }
+    write!(writer, "begin transaction")?;
 
+    for record in csv_reader.records() {
         if chunk_insert_count == 0 {
             if args.chunk > 0 && chunk_count == args.chunk {
                 write!(writer, ";\n\ncommit;\n\nbegin transaction")?;
@@ -158,12 +148,12 @@ fn generate_sql(args: &Arguments, mut csv_reader: csv::Reader<io::BufReader<File
                 chunk_insert_count = 0;
                 insert_separator = ";";
             }
+        } else {
+            insert_separator = ";";
         }
     }
 
-    writeln!(writer, ";")?;
-
-    writeln!(writer, "\ncommit;")?;
+    writeln!(writer, ";\n\ncommit;")?;
 
     return Ok(());
 }
