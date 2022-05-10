@@ -129,18 +129,21 @@ fn generate_sql(args: &Arguments, mut csv_reader: csv::Reader<io::BufReader<File
     let mut chunk_count = 0;
     let mut chunk_insert_count = 0;
     let mut insert_separator = ";";
-    let mut print_commit = false;
 
     for record in csv_reader.records() {
         if args.chunk > 0 && chunk_count == 0 {
-            write!(writer, "begin transaction;")?;
-            print_commit = true;
+            write!(writer, "begin transaction")?;
         }
-        chunk_count += 1;
 
         if chunk_insert_count == 0 {
+            if args.chunk > 0 && chunk_count == args.chunk {
+                write!(writer, ";\n\ncommit;\n\nbegin transaction")?;
+                chunk_count = 0;
+            }
+
             write!(writer, "{}\n\ninsert into {} {} values", insert_separator, args.table.as_str(), insert_fields)?;
             insert_separator = "";
+            chunk_count += 1;
         }
 
         match record {
@@ -156,19 +159,11 @@ fn generate_sql(args: &Arguments, mut csv_reader: csv::Reader<io::BufReader<File
                 insert_separator = ";";
             }
         }
-
-        if args.chunk > 0 && chunk_count == args.chunk && print_commit {
-            writeln!(writer, "\ncommit;")?;
-            chunk_count = 0;
-            print_commit = false;
-        }
     }
 
     writeln!(writer, ";")?;
 
-    if print_commit {
-        writeln!(writer, ";\ncommit;")?;
-    }
+    writeln!(writer, "\ncommit;")?;
 
     return Ok(());
 }
