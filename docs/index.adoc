@@ -26,11 +26,11 @@ image::images/waterloo_tree_inventory.png[Waterloo Tree Inventory]
 
 This dataset is available in the folder https://github.com/htmfilho/roma/tree/main/examples[/examples]. We can process it with the following command:
 
-    $ ./roma --csv waterloo_tree_inventory.csv
+    $ roma --csv waterloo_tree_inventory.csv
 
 which generates the sql file `waterloo_tree_inventory.sql`. This is what happens by default:
 
-- the name of the CSV file is used as the name of the table in the insert statement
+- the name of the CSV file is used as the name of the table in the insert statement and the name of the SQL file.
 - the first line is skipped because it contains the headers that describe the data
 - the headers in the first line are used as columns of the table
 - the column separator is comma
@@ -40,7 +40,11 @@ which generates the sql file `waterloo_tree_inventory.sql`. This is what happens
 
 === Supported Arguments
 
-These default behaviours can change using arguments. For example, to set a table name different from the name of the CSV file, use:
+These default behaviours can change using arguments. To specify a custom SQL filename, different from the CSV filename, use the argument `--sql` or `q`:
+
+    $ roma --csv waterloo_tree_inventory.csv --sql path/to/waterloo_trees.sql
+
+To set a table name different from the CSV filename, use:
 
     $ ./roma --csv waterloo_tree_inventory.csv --table TREE_INVENTORY
 
@@ -52,9 +56,9 @@ In case of `--headers false`, the columns must be informed manually, using multi
 
     -h false -c coord_x -c coord_y -c street -c species ...
 
-Columns can also be informed with `-h true` because the user may want to customize the columns in the insert statements.
+Columns can optionally be informed with `-h true`, since the user may want to customize the columns in the insert statements.
 
-If the file is using `tab` or `semicolon` characters as value delimiters, instead of `comma`, then specify it with `--delimiter` or `-d`:
+If the file is using `tab` or `semicolon` characters as value delimiters instead of `comma`, then specify it with `--delimiter` or `-d`:
 
     --delimiter tab
 
@@ -62,19 +66,19 @@ If you need to put some SQL statements or documentation before the generated sta
 
     --prefix waterloo_tree_inventory_prefix.txt
 
-We also support putting content at the end of the file, using the argument `--suffix` or `-s`:
+It is also possible to put content at the end of the file, using the argument `--suffix` or `-s`:
 
     --suffix waterloo_tree_inventory_suffix.txt
 
 Sometimes the CSV file is too large and generates too many insert statements to the point a single database transaction cannot cope. To create several transactions throughout the file, use `--chunk` or `-k`:
 
-    --chunk 1000
+    --chunk 10
 
-It puts chunks of 1000 inserts between `begin transaction` and `commit`. The insert statements can be further optimized, inserting several records at once by using:
+It puts chunks of 1000 inserts between `begin transaction` and `commit`. The insert statements can be further optimized, inserting several records at once by using `--chunkinsert` or `-i`:
 
-    --chunkinsert 250
+    --chunkinsert 10
 
-A proper configuration of `--chunk` and `chunkinsert` can optimize the SQL file maximum performance. In this case, a CSV file with 10000 records would be converted into a SQL with 10 transactions and each transaction would contain 4 inserts with 250 records each.
+A proper configuration of `--chunk` and `chunkinsert` can optimize the SQL file maximum performance. In this case, a CSV file with 1000 records would be converted into a SQL with 10 transactions and each transaction would contain 10 inserts with 10 records each.
 
 === Type Handling
 
