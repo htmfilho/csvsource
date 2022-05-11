@@ -59,3 +59,7 @@ Targeting the current operating system:
 Targeting other operating systems:
 
     $ cargo build --target=x86_64-pc-windows-gnu
+
+Installing to run locally, by adding the command to the classpath:
+
+    $ cargo install --path .
