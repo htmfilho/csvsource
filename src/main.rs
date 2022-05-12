@@ -1,5 +1,7 @@
 use clap::{Arg, ArgMatches, App, ErrorKind};
 
+use itertools::intersperse;
+
 use std::fs::File;
 use std::io;
 use std::io::{BufWriter, Write};
@@ -95,19 +97,11 @@ fn generate_sql_file(args: Arguments, csv_reader: csv::Reader<io::BufReader<File
     let sql_file = File::create(get_file_name_without_extension(&args.csv) + ".sql").expect("Unable to create file");
     let mut writer = BufWriter::new(sql_file);
 
-    if let Err(err) = append_file_content(args.prefix.clone(), &mut writer) {
-        return Err(err);
-    }
+    append_file_content(args.prefix.clone(), &mut writer)?;
+    generate_sql(&args, csv_reader, &mut writer)?;
+    append_file_content(args.suffix, &mut writer)?;
 
-    if let Err(err) = generate_sql(&args, csv_reader, &mut writer) {
-        return Err(err);
-    }
-
-    if let Err(err) = append_file_content(args.suffix, &mut writer) {
-        return Err(err);
-    }
-
-    return Ok(());
+    Ok(())
 }
 
 fn generate_sql(args: &Arguments, mut csv_reader: csv::Reader<io::BufReader<File>>, writer: &mut BufWriter<File>) -> Result<(), io::Error> {
@@ -174,34 +168,26 @@ fn append_file_content(path: String, writer: &mut BufWriter<File>) -> Result<(),
 }
 
 fn get_insert_fields(headers: &csv::StringRecord) -> String {
-    let mut insert_fields = String::from("(");
-    let mut separator = "";
-
-    for result in headers {
-        insert_fields.push_str(separator);
-        insert_fields.push_str(result);
-        separator = ", "
-    }
-
-    insert_fields.push_str(")");
-    return insert_fields;
+    let insert_fields: String = intersperse(headers, ", ").collect();
+    return format!("({})", insert_fields);
 }
 
 fn get_values(record: &csv::StringRecord) -> String {
-    let mut values = String::from("(");
+    let mut values = String::new();
     let mut separator = "";
+
     for result in record {
         values.push_str(separator);
         values.push_str(&get_value(result));
         separator = ", "
     }
-    values.push_str(")");
-    return values;
+
+    return format!("({})", values);
 }
 
 fn get_value(result: &str) -> String {
     let mut value = String::new();
-    if is_number(String::from(result)) {
+    if is_number(result) {
         value.push_str(result);
     } else if is_boolean(String::from(result)) {
         value.push_str(result);
@@ -217,20 +203,11 @@ fn get_value(result: &str) -> String {
     return value;
 }
 
-fn is_number(str: String) -> bool {
+fn is_number(str: &str) -> bool {
     if str.is_empty() {
         return false;
     }
 
-    for c in str.chars() {
-        if !c.is_numeric() {
-            return is_decimal(str);
-        }
-    }
-    return true;
-}
-
-fn is_decimal(str: String) -> bool {
     let test = str.parse::<f64>();
 
     return match test {
@@ -240,8 +217,8 @@ fn is_decimal(str: String) -> bool {
 }
 
 fn is_boolean(str: String) -> bool {
-    let tr: String = String::from("true");
-    let fs: String = String::from("false");
+    let tr = "true";
+    let fs = "false";
 
     return tr.eq(&str.to_lowercase()) || fs.eq(&str.to_lowercase());
 }
