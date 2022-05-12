@@ -443,7 +443,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="details">
 <span id="author" class="author">Hildeberto Mendonca</span><br>
 <span id="email" class="email"><a href="mailto:me@hildeberto.com">me@hildeberto.com</a></span><br>
-<span id="revnumber">version 0.3.0</span>
+<span id="revnumber">version 0.4.0</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -452,10 +452,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_using_roma">2. Using Roma</a>
 <ul class="sectlevel2">
 <li><a href="#_supported_arguments">2.1. Supported Arguments</a></li>
-<li><a href="#_pending_arguments">2.2. Pending Arguments</a></li>
-<li><a href="#_type_handling">2.3. Type Handling</a></li>
+<li><a href="#_type_handling">2.2. Type Handling</a></li>
 </ul>
 </li>
+<li><a href="#_documentation">3. Documentation</a></li>
 </ul>
 </div>
 </div>
@@ -501,7 +501,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ ./roma --csv waterloo_tree_inventory.csv</pre>
+<pre>$ roma --csv waterloo_tree_inventory.csv</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -510,7 +510,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="ulist">
 <ul>
 <li>
-<p>the name of the CSV file is used as the name of the table in the insert statement</p>
+<p>the name of the CSV file is used as the name of the table in the insert statement and the name of the SQL file.</p>
 </li>
 <li>
 <p>the first line is skipped because it contains the headers that describe the data</p>
@@ -535,7 +535,15 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect2">
 <h3 id="_supported_arguments">2.1. Supported Arguments</h3>
 <div class="paragraph">
-<p>These default behaviours can change using arguments. For example, to set a table name different from the name of the CSV file, use:</p>
+<p>These default behaviours can change using arguments. To specify a custom SQL filename, different from the CSV filename, use the argument <code>--sql</code> or <code>q</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ roma --csv waterloo_tree_inventory.csv --sql path/to/waterloo_trees.sql</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To set a table name different from the CSV filename, use:</p>
 </div>
 <div class="literalblock">
 <div class="content">
@@ -559,10 +567,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="paragraph">
-<p>Columns can also be informed with <code>-h true</code> because the user may want to customize the columns in the insert statements.</p>
+<p>Columns can optionally be informed with <code>-h true</code>, since the user may want to customize the columns in the insert statements.</p>
 </div>
 <div class="paragraph">
-<p>If the file is using <code>tab</code> or <code>semicolon</code> characters as value delimiters, instead of <code>comma</code>, then specify it with <code>--delimiter</code> or <code>-d</code>:</p>
+<p>If the file is using <code>tab</code> or <code>semicolon</code> characters as value delimiters instead of <code>comma</code>, then specify it with <code>--delimiter</code> or <code>-d</code>:</p>
 </div>
 <div class="literalblock">
 <div class="content">
@@ -578,43 +586,51 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="paragraph">
-<p>We also support putting content at the end of the file, using the argument <code>--suffix</code> or <code>-s</code>:</p>
+<p>It is also possible to put content at the end of the file, using the argument <code>--suffix</code> or <code>-s</code>:</p>
 </div>
 <div class="literalblock">
 <div class="content">
 <pre>--suffix waterloo_tree_inventory_suffix.txt</pre>
 </div>
 </div>
-</div>
-<div class="sect2">
-<h3 id="_pending_arguments">2.2. Pending Arguments</h3>
 <div class="paragraph">
-<p>There are some arguments that we want to develop in the near future. We ended up documenting them first.</p>
-</div>
-<div class="paragraph">
-<p>Sometimes the CSV file is too large and generates too many insert statements to the point a single database transaction cannot cope. To create several thransactions throughout the file, use:</p>
+<p>Sometimes the CSV file is too large and generates too many insert statements to the point a single database transaction cannot cope. To create several transactions throughout the file, use <code>--chunk</code> or <code>-k</code>:</p>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>--chunk 1000</pre>
+<pre>--chunk 10</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>It puts chunks of 1000 inserts between <code>begin transaction</code> and <code>commit transaction</code>. The insert statements can be further optimized, inserting several records at once by using:</p>
+<p>It puts chunks of 1000 inserts between <code>begin transaction</code> and <code>commit</code>. The insert statements can be further optimized, inserting several records at once by using <code>--chunkinsert</code> or <code>-i</code>:</p>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>--chunkinsert 250</pre>
+<pre>--chunkinsert 10</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>A proper configuration of <code>--chunk</code> and <code>chunkinsert</code> can optimize the SQL file maximum performance. In this case, a CSV file with 10000 records would be converted into a SQL with 10 transactions and each transaction would contain 4 inserts with 250 records each.</p>
+<p>A proper configuration of <code>--chunk</code> and <code>chunkinsert</code> can optimize the SQL file maximum performance. In this case, a CSV file with 1000 records would be converted into a SQL with 10 transactions and each transaction would contain 10 inserts with 10 records each.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_type_handling">2.3. Type Handling</h3>
+<h3 id="_type_handling">2.2. Type Handling</h3>
 <div class="paragraph">
 <p>In a SQL insert statement, it is important to know the type of data to generate the right syntax. Strings and dates are delimited by single quotes ('), but numbers and booleans are not. Roma has mechanisms to detect data types, but it can also be unpredictable. Take a value that contains only numbers, but it isn&#8217;t necessarily numeric, like a social security number. Roma will automatically identify it as numeric, but in another row it finds "none", making it a string.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_documentation">3. Documentation</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This documentation is written in Asciidoc. We use Asciidoctor to compile it to HTML and PDF.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>$ asciidoctor docs/index.adoc
+$ asciidoctor-pdf docs/index.adoc</pre>
 </div>
 </div>
 </div>
@@ -622,8 +638,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 0.3.0<br>
-Last updated 2022-04-26 09:39:05 -0400
+Version 0.4.0<br>
+Last updated 2022-05-11 22:01:51 -0400
 </div>
 </div>
 </body>

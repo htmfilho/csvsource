@@ -44,7 +44,7 @@ To see the documentation:
 
 ### Run
 
-    $ cargo run -- --csv examples/small_waterloo_tree_inventory.csv
+    $ cargo run -- --csv examples/waterloo_tree_inventory.csv
 
 ### Build
 
@@ -59,3 +59,7 @@ Targeting the current operating system:
 Targeting other operating systems:
 
     $ cargo build --target=x86_64-pc-windows-gnu
+
+Installing to run locally, by adding the command to the classpath:
+
+    $ cargo install --path .
