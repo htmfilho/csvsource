@@ -22,7 +22,12 @@ fn main() {
                 .value_name("file")
                 .required(true)
                 .takes_value(true)
-                .help("Relative or absolute path to the CSV file. The name of the file is also used was table name unless specified otherwise."))
+                .help("Relative or absolute path to the CSV file. The name of the file is also used as table name unless specified otherwise."))
+        .arg(Arg::new("sql")
+                .long("sql")
+                .short('q')
+                .value_name("file")
+                .help("Relative or absolute path to the SQL file."))
         .arg(Arg::new("delimiter")
                 .long("delimiter")
                 .short('d')
@@ -94,7 +99,7 @@ fn process_csv(args: Arguments) -> Result<(), io::Error> {
 }
 
 fn generate_sql_file(args: Arguments, csv_reader: csv::Reader<io::BufReader<File>>) -> Result<(), io::Error> {
-    let sql_file = File::create(get_file_name_without_extension(&args.csv) + ".sql").expect("Unable to create file");
+    let sql_file = File::create(&args.sql).expect("Unable to create sql file");
     let mut writer = BufWriter::new(sql_file);
 
     append_file_content(args.prefix.clone(), &mut writer)?;
@@ -225,6 +230,7 @@ fn is_boolean(str: String) -> bool {
 
 struct Arguments {
     csv          : String,
+    sql          : String,
     delimiter    : u8,
     has_headers  : bool,
     table        : String,
@@ -250,8 +256,9 @@ impl Arguments {
 }
 
 fn load_arguments(matches: ArgMatches) -> Arguments {
-    let mut arguments = Arguments{
+    let mut arguments = Arguments {
         csv: String::from(""),
+        sql: String::from(""),
         delimiter: b',',
         has_headers: true,
         table: String::from(""),
@@ -264,6 +271,12 @@ fn load_arguments(matches: ArgMatches) -> Arguments {
 
     if let Some(csv) = matches.value_of("csv") {
         arguments.csv = String::from(csv);
+    }
+
+    let sql = matches.value_of("sql");
+    match sql {
+        Some(q) => arguments.sql = String::from(q),
+        None => arguments.sql = get_file_name_without_extension(&arguments.csv) + ".sql",
     }
 
     if let Some(delimiter) = matches.value_of("delimiter") {
