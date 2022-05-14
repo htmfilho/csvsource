@@ -17,63 +17,75 @@ fn main() {
         .author("Hildeberto Mendonca <me@hildeberto.com>")
         .about("Converts a CSV file to SQL Insert Statements.")
         .arg(Arg::new("csv")
-                .long("csv")
-                .short('f')
-                .value_name("file")
-                .required(true)
-                .takes_value(true)
-                .help("Relative or absolute path to the CSV file. The name of the file is also used as table name unless specified otherwise."))
+            .long("csv")
+            .short('f')
+            .value_name("file")
+            .required(true)
+            .takes_value(true)
+            .help("Relative or absolute path to the CSV file. The name of the file is also used as table name unless specified otherwise."))
         .arg(Arg::new("sql")
-                .long("sql")
-                .short('q')
-                .value_name("file")
-                .help("Relative or absolute path to the SQL file."))
+            .long("sql")
+            .short('q')
+            .value_name("file")
+            .help("Relative or absolute path to the SQL file."))
         .arg(Arg::new("delimiter")
-                .long("delimiter")
-                .short('d')
-                .default_value("comma")
-                .value_name("comma | semicolon | tab")
-                .help("The supported CSV delimiter used in the file."))
+            .long("delimiter")
+            .short('d')
+            .default_value("comma")
+            .value_name("comma | semicolon | tab")
+            .help("The supported CSV delimiter used in the file."))
         .arg(Arg::new("table")
-                .long("table")
-                .short('t')
-                .value_name("database_table_name")
-                .help("Database table name if it is different from the name of the CSV file."))
+            .long("table")
+            .short('t')
+            .value_name("database_table_name")
+            .help("Database table name if it is different from the name of the CSV file."))
         .arg(Arg::new("headers")
-                .long("headers")
-                .short('h')
-                .default_value("true")
-                .value_name("true | false")
-                .help("Consider the first line in the file as headers to columns. They are also used as sql column names unless specified otherwise."))
+            .long("headers")
+            .short('h')
+            .default_value("true")
+            .value_name("true | false")
+            .help("Consider the first line in the file as headers to columns. They are also used as sql column names unless specified otherwise."))
         .arg(Arg::new("columns")
-                .long("column")
-                .short('c')
-                .required_if_eq("headers", "false")
-                .multiple_occurrences(true)
-                .value_name("database_column_names")
-                .help("Columns of the database table if different from the name of the labels."))
+            .long("column")
+            .short('c')
+            .required_if_eq("headers", "false")
+            .multiple_occurrences(true)
+            .value_name("database_column_names")
+            .help("Columns of the database table if different from the name of the labels."))
         .arg(Arg::new("chunk")
-                .long("chunk")
-                .short('k')
-                .default_value("0")
-                .value_name("#")
-                .help("Size of the transaction chunk, indicating how many insert statements are put within a transaction scope."))
+            .long("chunk")
+            .short('k')
+            .default_value("0")
+            .value_name("#")
+            .help("Size of the transaction chunk, indicating how many insert statements are put within a transaction scope."))
         .arg(Arg::new("chunk_insert")
-                .long("chunkinsert")
-                .short('i')
-                .default_value("0")
-                .value_name("#")
-                .help("Size of the insert chunk, indicating how many lines of the CSV files will be put in a single insert statement."))
+            .long("chunkinsert")
+            .short('i')
+            .default_value("0")
+            .value_name("#")
+            .help("Size of the insert chunk, indicating how many lines of the CSV files will be put in a single insert statement."))
         .arg(Arg::new("prefix")
-                .long("prefix")
-                .short('p')
-                .value_name("file")
-                .help("File with the content to prefix the sql file. Example: it can be used to create the target table."))
+            .long("prefix")
+            .short('p')
+            .value_name("file")
+            .help("File with the content to prefix the sql file. Example: it can be used to create the target table."))
         .arg(Arg::new("suffix")
-                .long("suffix")
-                .short('s')
-                .value_name("file")
-                .help("File with the content to suffix the sql file. Example: it can be used to create indexes."))
+            .long("suffix")
+            .short('s')
+            .value_name("file")
+            .help("File with the content to suffix the sql file. Example: it can be used to create indexes."))
+        .arg(Arg::new("with_transaction")
+            .long("with_transaction")
+            .short('w')
+            .default_value("false")
+            .value_name("true | false")
+            .help("Indicates whether SQL statements are put in a transaction block or not. This argument is ignored if the argument chunk is used."))
+        .arg(Arg::new("typed")
+            .long("typed")
+            .short('y')
+            .default_value("false")
+            .value_name("true | false")
+            .help("Indicates whether the values type are declared, automatically detected or everything is taken as string."))
         .get_matches();
 
     let args = load_arguments(matches);
@@ -119,9 +131,13 @@ fn generate_sql(args: &Arguments, mut csv_reader: csv::Reader<io::BufReader<File
 
     let mut chunk_count = 0;
     let mut chunk_insert_count = 0;
-    let mut insert_separator = ";";
+    let mut insert_separator = ";\n\n";
 
-    write!(writer, "begin transaction")?;
+    if args.with_transaction {
+        write!(writer, "begin transaction")?;
+    } else {
+        insert_separator = "";
+    }
 
     for record in csv_reader.records() {
         if chunk_insert_count == 0 {
@@ -130,7 +146,7 @@ fn generate_sql(args: &Arguments, mut csv_reader: csv::Reader<io::BufReader<File
                 chunk_count = 0;
             }
 
-            write!(writer, "{}\n\ninsert into {} {} values", insert_separator, args.table.as_str(), insert_fields)?;
+            write!(writer, "{}insert into {} {} values", insert_separator, args.table.as_str(), insert_fields)?;
             insert_separator = "";
             chunk_count += 1;
         }
@@ -145,14 +161,18 @@ fn generate_sql(args: &Arguments, mut csv_reader: csv::Reader<io::BufReader<File
             insert_separator = ",";
             if args.chunk_insert == chunk_insert_count {
                 chunk_insert_count = 0;
-                insert_separator = ";";
+                insert_separator = ";\n\n";
             }
         } else {
-            insert_separator = ";";
+            insert_separator = ";\n\n";
         }
     }
 
-    writeln!(writer, ";\n\ncommit;")?;
+    if args.with_transaction {
+        write!(writer, ";\n\ncommit;")?
+    } else {
+        write!(writer, ";");
+    }
 
     return Ok(());
 }
@@ -229,16 +249,18 @@ fn is_boolean(str: String) -> bool {
 }
 
 struct Arguments {
-    csv          : String,
-    sql          : String,
-    delimiter    : u8,
-    has_headers  : bool,
-    table        : String,
-    columns      : Vec<String>,
-    chunk        : usize,
-    chunk_insert : usize,
-    prefix       : String,
-    suffix       : String,
+    csv              : String,
+    sql              : String,
+    delimiter        : u8,
+    has_headers      : bool,
+    table            : String,
+    columns          : Vec<String>,
+    chunk            : usize,
+    chunk_insert     : usize,
+    prefix           : String,
+    suffix           : String,
+    with_transaction : bool,
+    typed            : bool,
 }
 
 impl Arguments {
@@ -267,6 +289,8 @@ fn load_arguments(matches: ArgMatches) -> Arguments {
         chunk_insert: 0,
         prefix: String::from(""),
         suffix: String::from(""),
+        with_transaction: false,
+        typed: false,
     };
 
     if let Some(csv) = matches.value_of("csv") {
@@ -310,6 +334,9 @@ fn load_arguments(matches: ArgMatches) -> Arguments {
     
     if let Some(chunk) = matches.value_of("chunk") {
         arguments.chunk = String::from(chunk).parse::<usize>().unwrap();
+        if arguments.chunk > 0 {
+            arguments.with_transaction = true;
+        }
     }
 
     if let Some(insert_chunk) = matches.value_of("chunk_insert") {
@@ -322,6 +349,18 @@ fn load_arguments(matches: ArgMatches) -> Arguments {
 
     if let Some(suffix) = matches.value_of("suffix") {
         arguments.suffix = String::from(suffix);
+    }
+
+    if let Some(with_transaction) = matches.value_of("with_transaction") {
+        if arguments.chunk <= 0 {
+            let result: Result<bool, ParseBoolError> = FromStr::from_str(with_transaction);
+            arguments.with_transaction = result.ok().unwrap();
+        }
+    }
+
+    if let Some(typed) = matches.value_of("typed") {
+        let result: Result<bool, ParseBoolError> = FromStr::from_str(typed);
+        arguments.typed = result.ok().unwrap();
     }
     
     return arguments;
