@@ -152,7 +152,7 @@ fn generate_sql(args: &Arguments, mut csv_reader: csv::Reader<io::BufReader<File
         }
 
         match record {
-            Ok(row) => write!(writer, "{}\n{}", insert_separator, get_values(&row))?,
+            Ok(row) => write!(writer, "{}\n{}", insert_separator, get_values(args, &row))?,
             Err(e) => return Err(io::Error::new(io::ErrorKind::InvalidData, e))
         }
 
@@ -197,13 +197,19 @@ fn get_insert_fields(headers: &csv::StringRecord) -> String {
     return format!("({})", insert_fields);
 }
 
-fn get_values(record: &csv::StringRecord) -> String {
+fn get_values(args: &Arguments, record: &csv::StringRecord) -> String {
     let mut values = String::new();
     let mut separator = "";
 
     for result in record {
         values.push_str(separator);
-        values.push_str(&get_value(result));
+        if args.typed {
+            values.push_str(&get_value(result));
+        } else {
+            values.push_str("'");
+            values.push_str(&result.replace("'", "''"));
+            values.push_str("'");
+        }
         separator = ", "
     }
 
@@ -212,6 +218,7 @@ fn get_values(record: &csv::StringRecord) -> String {
 
 fn get_value(result: &str) -> String {
     let mut value = String::new();
+
     if is_number(result) {
         value.push_str(result);
     } else if is_boolean(String::from(result)) {
