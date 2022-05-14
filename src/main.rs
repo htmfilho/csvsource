@@ -22,7 +22,7 @@ fn main() {
             .value_name("file")
             .required(true)
             .takes_value(true)
-            .help("Relative or absolute path to the CSV file. The name of the file is also used as table name unless specified otherwise."))
+            .help("Relative or absolute path to the CSV file. The file's name is also used as table name and sql file's name, unless specified otherwise by the arguments `--table` and `--sql` respectivelly."))
         .arg(Arg::new("sql")
             .long("sql")
             .short('q')
@@ -33,7 +33,7 @@ fn main() {
             .short('d')
             .default_value("comma")
             .value_name("comma | semicolon | tab")
-            .help("The supported CSV delimiter used in the file."))
+            .help("The supported CSV value delimiter used in the file."))
         .arg(Arg::new("table")
             .long("table")
             .short('t')
@@ -63,17 +63,17 @@ fn main() {
             .short('i')
             .default_value("0")
             .value_name("#")
-            .help("Size of the insert chunk, indicating how many lines of the CSV files will be put in a single insert statement."))
+            .help("Size of the insert chunk, indicating how many lines of the CSV files are put in a single insert statement."))
         .arg(Arg::new("prefix")
             .long("prefix")
             .short('p')
             .value_name("file")
-            .help("File with the content to prefix the sql file. Example: it can be used to create the target table."))
+            .help("File with the content to put at the beginning of the SQL file. Example: It can be used to create the target table."))
         .arg(Arg::new("suffix")
             .long("suffix")
             .short('s')
             .value_name("file")
-            .help("File with the content to suffix the sql file. Example: it can be used to create indexes."))
+            .help("File with the content to put at the end of the SQL file. Example: It can be used to create indexes."))
         .arg(Arg::new("with_transaction")
             .long("with_transaction")
             .short('w')
@@ -171,7 +171,7 @@ fn generate_sql(args: &Arguments, mut csv_reader: csv::Reader<io::BufReader<File
     if args.with_transaction {
         write!(writer, ";\n\ncommit;")?
     } else {
-        write!(writer, ";");
+        write!(writer, ";")?
     }
 
     return Ok(());
@@ -362,7 +362,7 @@ fn load_arguments(matches: ArgMatches) -> Arguments {
         let result: Result<bool, ParseBoolError> = FromStr::from_str(typed);
         arguments.typed = result.ok().unwrap();
     }
-    
+
     return arguments;
 }
 

@@ -80,11 +80,84 @@ It puts chunks of 1000 inserts between `begin transaction` and `commit`. The ins
 
 A proper configuration of `--chunk` and `chunkinsert` can optimize the SQL file maximum performance. In this case, a CSV file with 1000 records would be converted into a SQL with 10 transactions and each transaction would contain 10 inserts with 10 records each.
 
+==== Argument Summary
+
+The following table summarizes all supported arguments, also accessible through: `roma --help`.
+
+[cols="1,1,3,1,1"]
+|===
+| Argument | Short | Description | Options | Default 
+
+| --csv
+| - f
+| Relative or absolute path to the CSV file. The file's name is also used as table name and sql file's name, unless specified otherwise by the arguments `--table` and `--sql` respectivelly.
+| NA
+| Mandatory
+
+| --sql
+| -q
+| Relative or absolute path to the SQL file.
+| NA
+| Name of the CSV file with the `sql` extension instead.
+
+| --delimiter
+| -d
+| The supported CSV value delimiter used in the file.
+| comma, semicolon, tab
+| comma
+
+| --table
+| -t
+| Database table name if it is different from the name of the CSV file.
+| NA
+| Name of the CSV file
+
+| --headers
+| -h
+| Consider the first line in the file as headers to columns. They are also used as sql column names unless specified otherwise.
+| true, false
+| true
+
+| --column
+| -c
+| Columns of the database table if different from the name of the labels.
+| NA
+| CSV headers. Required if `headers` is false.
+
+| --chunk
+| -k
+| Size of the transaction chunk, indicating how many insert statements are put within a transaction scope.
+| NA
+| 0
+
+| --chunkinsert
+| -i
+| Size of the insert chunk, indicating how many lines of the CSV files are put in a single insert statement.
+| NA
+| 0
+
+| --prefix
+| -p
+| File with the content to put at the beginning of the SQL file. Example: It can be used to create the target table.
+| NA
+| NA
+
+| --suffix
+| -s
+| File with the content to put at the end of the SQL file. Example: It can be used to create indexes.
+| NA
+| NA
+|===
+
+==== Examples
+
+
+
 === Type Handling
 
 In a SQL insert statement, it is important to know the type of data to generate the right syntax. Strings and dates are delimited by single quotes ('), but numbers and booleans are not. Roma has mechanisms to detect data types, but it can also be unpredictable. Take a value that contains only numbers, but it isn't necessarily numeric, like a social security number. Roma will automatically identify it as numeric, but in another row it finds "none", making it a string.
 
-== Documentation
+== About this Documentation
 
 This documentation is written in Asciidoc. We use Asciidoctor to compile it to HTML and PDF.
 
