@@ -31,14 +31,13 @@ This dataset is available in the folder https://github.com/htmfilho/roma/tree/ma
 which generates the sql file `waterloo_tree_inventory.sql`. This is what happens by default:
 
 - the name of the CSV file is used as the name of the table in the insert statement and the name of the SQL file.
-- the first line is skipped because it contains the headers that describe the data
-- the headers in the first line are used as columns of the table
-- the column separator is comma
-- each line in the CSV turns into an insert statement
-- if the value contains at least one alphanumeric character then it is quoted.
-- if the value contains a valid number then it is not quoted.
+- the first line is skipped because it contains the headers that describe the data.
+- the headers in the first line are used as columns of the table.
+- the column separator is comma.
+- each line in the CSV turns into an insert statement.
+- all values are quoted as string.
 
-=== Supported Arguments
+=== Supported Command Line Arguments
 
 These default behaviours can change using arguments. To specify a custom SQL filename, different from the CSV filename, use the argument `--sql` or `q`:
 
@@ -61,6 +60,14 @@ Columns can optionally be informed with `-h true`, since the user may want to cu
 If the file is using `tab` or `semicolon` characters as value delimiters instead of `comma`, then specify it with `--delimiter` or `-d`:
 
     --delimiter tab
+
+If required, the insert statements can be in a transaction scope, beginning with `begin transaction` and ending with `commit`. Use the argument `--with_transaction` or `-w`:
+
+    --with_transaction true
+
+To enable automatic type recognition, use the argument `--typed` or `y`:
+
+    --typed true
 
 If you need to put some SQL statements or documentation before the generated statements, at the beginning of the file, use the argument `--prefix` or `-p`:
 
@@ -88,70 +95,78 @@ The following table summarizes all supported arguments, also accessible through:
 |===
 | Argument | Short | Description | Options | Default 
 
-| --csv
-| - f
+| `--csv`
+| `-f`
 | Relative or absolute path to the CSV file. The file's name is also used as table name and sql file's name, unless specified otherwise by the arguments `--table` and `--sql` respectivelly.
 | NA
 | Mandatory
 
-| --sql
-| -q
+| `--sql`
+| `-q`
 | Relative or absolute path to the SQL file.
 | NA
 | Name of the CSV file with the `sql` extension instead.
 
-| --delimiter
-| -d
+| `--delimiter`
+| `-d`
 | The supported CSV value delimiter used in the file.
 | comma, semicolon, tab
 | comma
 
-| --table
-| -t
+| `--table`
+| `-t`
 | Database table name if it is different from the name of the CSV file.
 | NA
 | Name of the CSV file
 
-| --headers
-| -h
+| `--headers`
+| `-h`
 | Consider the first line in the file as headers to columns. They are also used as sql column names unless specified otherwise.
 | true, false
 | true
 
-| --column
-| -c
+| `--column`
+| `-c`
 | Columns of the database table if different from the name of the labels.
 | NA
 | CSV headers. Required if `headers` is false.
 
-| --chunk
-| -k
+| `--with_transaction`
+| `-w`
+| Indicates whether SQL statements are put in a transaction block or not. This argument is ignored if the argument chunk is used.
+| true, false
+| false
+
+| `--typed`
+| `-y`
+| Indicates whether the values type are declared, automatically detected or everything is taken as string.
+| true, false
+| false
+
+| `--chunk`
+| `-k`
 | Size of the transaction chunk, indicating how many insert statements are put within a transaction scope.
 | NA
 | 0
 
-| --chunkinsert
-| -i
+| `--chunkinsert`
+| `-i`
 | Size of the insert chunk, indicating how many lines of the CSV files are put in a single insert statement.
 | NA
 | 0
 
-| --prefix
-| -p
+| `--prefix`
+| `-p`
 | File with the content to put at the beginning of the SQL file. Example: It can be used to create the target table.
 | NA
 | NA
 
-| --suffix
-| -s
+| `--suffix`
+| `-s`
 | File with the content to put at the end of the SQL file. Example: It can be used to create indexes.
 | NA
 | NA
 |===
-
-==== Examples
-
-
 
 === Type Handling
 
