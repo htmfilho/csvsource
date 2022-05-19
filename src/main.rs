@@ -122,12 +122,7 @@ fn generate_sql_file(args: Arguments, csv_reader: csv::Reader<io::BufReader<File
 }
 
 fn generate_sql(args: &Arguments, mut csv_reader: csv::Reader<io::BufReader<File>>, writer: &mut BufWriter<File>) -> Result<(), io::Error> {
-    let insert_fields =
-        if args.columns.is_empty() && args.has_headers {
-            get_insert_fields(csv_reader.headers()?)
-        } else {
-            args.get_insert_fields()
-        };
+    let insert_fields = args.get_insert_fields(csv_reader.headers()?);
 
     let mut chunk_count = 0;
     let mut chunk_insert_count = 0;
@@ -360,16 +355,21 @@ impl Arguments {
         return arguments;
     }
 
-    fn get_insert_fields(&self) -> String {
-        let mut insert_fields = String::from("(");
-        let mut separator = "";
-        for column in &self.columns {
-            insert_fields.push_str(separator);
-            insert_fields.push_str(column.as_str());
-            separator = ", "
+    fn get_insert_fields(&self, headers: &csv::StringRecord) -> String {
+        if &self.columns.is_empty() && &self.has_headers {
+            let insert_fields: String = intersperse(headers, ", ").collect();
+            return format!("({})", insert_fields);
+        } else {
+            let mut insert_fields = String::from("(");
+            let mut separator = "";
+            for column in &self.columns {
+                insert_fields.push_str(separator);
+                insert_fields.push_str(column.as_str());
+                separator = ", "
+            }
+            insert_fields.push_str(")");
+            return insert_fields;
         }
-        insert_fields.push_str(")");
-        return insert_fields;
     }
 }
 
