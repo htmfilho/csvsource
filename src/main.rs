@@ -187,11 +187,6 @@ fn append_file_content(path: String, writer: &mut BufWriter<File>) -> Result<(),
     return Ok(());
 }
 
-fn get_insert_fields(headers: &csv::StringRecord) -> String {
-    let insert_fields: String = intersperse(headers, ", ").collect();
-    return format!("({})", insert_fields);
-}
-
 fn get_values(args: &Arguments, record: &csv::StringRecord) -> String {
     let mut values = String::new();
     let mut separator = "";
@@ -356,9 +351,9 @@ impl Arguments {
     }
 
     fn get_insert_fields(&self, headers: &csv::StringRecord) -> String {
-        if &self.columns.is_empty() && &self.has_headers {
+        return if self.columns.is_empty() && self.has_headers {
             let insert_fields: String = intersperse(headers, ", ").collect();
-            return format!("({})", insert_fields);
+            format!("({})", insert_fields)
         } else {
             let mut insert_fields = String::from("(");
             let mut separator = "";
@@ -368,7 +363,7 @@ impl Arguments {
                 separator = ", "
             }
             insert_fields.push_str(")");
-            return insert_fields;
+            insert_fields
         }
     }
 }
