@@ -1,7 +1,6 @@
 use clap::{Arg, ArgMatches, App, ErrorKind};
-
 use itertools::intersperse;
-
+use serde::Serialize;
 use std::fs::File;
 use std::io;
 use std::io::{BufWriter, Write};
@@ -10,10 +9,11 @@ use std::path::Path;
 use std::result::Result;
 use std::str::FromStr;
 use std::str::ParseBoolError;
+use tinytemplate::TinyTemplate;
 
 fn main() {
     let matches = App::new("Roma")
-        .version("0.5.0")
+        .version("0.6.0")
         .author("Hildeberto Mendonca <me@hildeberto.com>")
         .about("Converts a CSV file to SQL Insert Statements.")
         .arg(Arg::new("csv")
@@ -107,16 +107,19 @@ fn process_csv(args: Arguments) -> Result<(), io::Error> {
                 .has_headers(args.has_headers)
                 .from_reader(reader);
 
-    return generate_sql_file(args, csv_reader);
+    generate_sql_file(args, csv_reader)
 }
 
 fn generate_sql_file(args: Arguments, csv_reader: csv::Reader<io::BufReader<File>>) -> Result<(), io::Error> {
     let sql_file = File::create(&args.sql).expect("Unable to create sql file");
     let mut writer = BufWriter::new(sql_file);
 
-    append_file_content(args.prefix.clone(), &mut writer)?;
+    let context = &TemplateContext {
+        table: args.table.to_string()
+    };
+    append_file_content(args.prefix.clone(), context, &mut writer)?;
     generate_sql(&args, csv_reader, &mut writer)?;
-    append_file_content(args.suffix, &mut writer)?;
+    append_file_content(args.suffix, context, &mut writer)?;
 
     Ok(())
 }
@@ -169,22 +172,40 @@ fn generate_sql(args: &Arguments, mut csv_reader: csv::Reader<io::BufReader<File
         write!(writer, ";")?
     }
 
-    return Ok(());
+    Ok(())
 }
 
-fn append_file_content(path: String, writer: &mut BufWriter<File>) -> Result<(), io::Error> {
+#[derive(Serialize)]
+struct TemplateContext {
+    table: String,
+}
+
+fn append_file_content(path: String, context: &TemplateContext, writer: &mut BufWriter<File>) -> Result<(), io::Error> {
     if !Path::new(path.as_str()).exists() {
         return Ok(());
     }
     
     let file = File::open(path)?;
     let reader = io::BufReader::new(file);
+    let mut template = String::new();
 
     for line in reader.lines() {
-        writeln!(writer, "{}", line?)?;
+        template.push_str(line.unwrap().as_str());
+        template.push_str("\n");
     }
 
-    return Ok(());
+    let mut tt = TinyTemplate::new();
+    let rendered = match tt.add_template("append", template.as_str()) {
+        Ok(..) => match tt.render("append", context) {
+            Ok(r) => r,
+            Err(e) => return Err(io::Error::new(io::ErrorKind::InvalidInput, e))
+        },
+        Err(e) => return Err(io::Error::new(io::ErrorKind::InvalidInput, e))
+    };
+
+    writeln!(writer, "{}", rendered)?;
+
+    Ok(())
 }
 
 fn get_values(args: &Arguments, record: &csv::StringRecord) -> String {
@@ -203,7 +224,7 @@ fn get_values(args: &Arguments, record: &csv::StringRecord) -> String {
         separator = ", "
     }
 
-    return format!("({})", values);
+    format!("({})", values)
 }
 
 fn get_value(result: &str) -> String {
@@ -222,7 +243,8 @@ fn get_value(result: &str) -> String {
             value.push_str("'");
         }
     }
-    return value;
+
+    value
 }
 
 fn is_number(str: &str) -> bool {
