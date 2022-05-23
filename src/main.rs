@@ -13,7 +13,7 @@ use tinytemplate::TinyTemplate;
 
 fn main() {
     let matches = App::new("Roma")
-        .version("0.5.0")
+        .version("0.6.0")
         .author("Hildeberto Mendonca <me@hildeberto.com>")
         .about("Converts a CSV file to SQL Insert Statements.")
         .arg(Arg::new("csv")
