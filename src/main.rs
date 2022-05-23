@@ -2,6 +2,8 @@ use clap::{Arg, ArgMatches, App, ErrorKind};
 
 use itertools::intersperse;
 
+use sql_builder::{SqlBuilder, quote};
+
 use std::fs::File;
 use std::io;
 use std::io::{BufWriter, Write};
@@ -169,7 +171,36 @@ fn generate_sql(args: &Arguments, mut csv_reader: csv::Reader<io::BufReader<File
         write!(writer, ";")?
     }
 
-    return Ok(());
+    Ok(())
+}
+
+fn generate_inserts(args: &Arguments, mut csv_reader: csv::Reader<io::BufReader<File>>, writer: &mut BufWriter<File>) -> Result<(), io::Error> {
+    let mut builder = SqlBuilder::insert_into(args.table.as_str());
+
+    let insert_fields = args.get_fields(csv_reader.headers()?);
+    for field in insert_fields {
+        builder.field(field);
+    }
+
+    if args.with_transaction {
+        write!(writer, "begin transaction")?;
+    } else {
+        insert_separator = "";
+    }
+
+    for record in csv_reader.records() {
+
+    }
+
+    if args.with_transaction {
+        write!(writer, ";\n\ncommit;")?
+    } else {
+        write!(writer, ";")?
+    }
+
+    writeln!(writer, builder.sql()?)?;
+
+    Ok(())
 }
 
 fn append_file_content(path: String, writer: &mut BufWriter<File>) -> Result<(), io::Error> {
