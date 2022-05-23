@@ -1,5 +1,4 @@
 use clap::{Arg, ArgMatches, App, ErrorKind};
-
 use itertools::intersperse;
 
 use std::fs::File;
@@ -107,7 +106,7 @@ fn process_csv(args: Arguments) -> Result<(), io::Error> {
                 .has_headers(args.has_headers)
                 .from_reader(reader);
 
-    return generate_sql_file(args, csv_reader);
+    generate_sql_file(args, csv_reader)
 }
 
 fn generate_sql_file(args: Arguments, csv_reader: csv::Reader<io::BufReader<File>>) -> Result<(), io::Error> {
@@ -169,7 +168,7 @@ fn generate_sql(args: &Arguments, mut csv_reader: csv::Reader<io::BufReader<File
         write!(writer, ";")?
     }
 
-    return Ok(());
+    Ok(())
 }
 
 fn append_file_content(path: String, writer: &mut BufWriter<File>) -> Result<(), io::Error> {
@@ -179,12 +178,16 @@ fn append_file_content(path: String, writer: &mut BufWriter<File>) -> Result<(),
     
     let file = File::open(path)?;
     let reader = io::BufReader::new(file);
+    let mut file_content = String::new();
 
     for line in reader.lines() {
-        writeln!(writer, "{}", line?)?;
+        file_content.push_str(line.unwrap().as_str());
+        file_content.push_str("\n");
     }
 
-    return Ok(());
+    writeln!(writer, "{}", file_content)?;
+
+    Ok(())
 }
 
 fn get_values(args: &Arguments, record: &csv::StringRecord) -> String {
@@ -203,7 +206,7 @@ fn get_values(args: &Arguments, record: &csv::StringRecord) -> String {
         separator = ", "
     }
 
-    return format!("({})", values);
+    format!("({})", values)
 }
 
 fn get_value(result: &str) -> String {
@@ -222,7 +225,8 @@ fn get_value(result: &str) -> String {
             value.push_str("'");
         }
     }
-    return value;
+
+    value
 }
 
 fn is_number(str: &str) -> bool {
