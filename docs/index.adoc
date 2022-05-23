@@ -1,6 +1,6 @@
 ﻿= Roma : Convert a CSV file to SQL Insert Statements
 Hildeberto Mendonca <me@hildeberto.com>
-v0.5.0
+v0.6.0
 :doctype: book
 :pdf-page-size: LETTER
 :encoding: utf-8
@@ -76,6 +76,10 @@ If you need to put some SQL statements or documentation before the generated sta
 It is also possible to put content at the end of the file, using the argument `--suffix` or `-s`:
 
     --suffix waterloo_tree_inventory_suffix.txt
+
+Prefix and suffix are actually template files and support variables that can be replaced by values at runtime. At this point in time, only one variable is supported:
+
+ - `table`: the name of the csv file or the value of the argument `--table`.
 
 Sometimes the CSV file is too large and generates too many insert statements to the point a single database transaction cannot cope. To create several transactions throughout the file, use `--chunk` or `-k`:
 
