@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS CITY_TREE (
+CREATE TABLE IF NOT EXISTS {table} (
     COORD_X                  NUMERIC(16, 13),
     COORD_Y                  NUMERIC(16, 13),
     OBJECT_ID                BIGINT,
