@@ -443,7 +443,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="details">
 <span id="author" class="author">Hildeberto Mendonca</span><br>
 <span id="email" class="email"><a href="mailto:me@hildeberto.com">me@hildeberto.com</a></span><br>
-<span id="revnumber">version 0.5.0</span>
+<span id="revnumber">version 0.6.0</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -529,7 +529,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>each line in the CSV turns into an insert statement.</p>
 </li>
 <li>
-<p>all values are quoted as strings.</p>
+<p>all values are quoted as string.</p>
 </li>
 </ul>
 </div>
@@ -609,6 +609,16 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="content">
 <pre>--suffix waterloo_tree_inventory_suffix.txt</pre>
 </div>
+</div>
+<div class="paragraph">
+<p>Prefix and suffix are actually template files and support variables that can be replaced by values at runtime. At this point in time, only one variable is supported:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>table</code>: the name of the csv file or the value of the argument <code>--table</code>.</p>
+</li>
+</ul>
 </div>
 <div class="paragraph">
 <p>Sometimes the CSV file is too large and generates too many insert statements to the point a single database transaction cannot cope. To create several transactions throughout the file, use <code>--chunk</code> or <code>-k</code>:</p>
@@ -765,8 +775,8 @@ $ asciidoctor-pdf docs/index.adoc</pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 0.5.0<br>
-Last updated 2022-05-16 09:10:17 -0400
+Version 0.6.0<br>
+Last updated 2022-05-23 12:58:24 -0400
 </div>
 </div>
 </body>
