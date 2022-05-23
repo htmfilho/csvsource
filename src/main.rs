@@ -1,6 +1,6 @@
 use clap::{Arg, ArgMatches, App, ErrorKind};
 use itertools::intersperse;
-
+use serde::Serialize;
 use std::fs::File;
 use std::io;
 use std::io::{BufWriter, Write};
@@ -9,6 +9,7 @@ use std::path::Path;
 use std::result::Result;
 use std::str::FromStr;
 use std::str::ParseBoolError;
+use tinytemplate::TinyTemplate;
 
 fn main() {
     let matches = App::new("Roma")
@@ -113,9 +114,12 @@ fn generate_sql_file(args: Arguments, csv_reader: csv::Reader<io::BufReader<File
     let sql_file = File::create(&args.sql).expect("Unable to create sql file");
     let mut writer = BufWriter::new(sql_file);
 
-    append_file_content(args.prefix.clone(), &mut writer)?;
+    let context = &TemplateContext {
+        table: args.table.to_string()
+    };
+    append_file_content(args.prefix.clone(), context, &mut writer)?;
     generate_sql(&args, csv_reader, &mut writer)?;
-    append_file_content(args.suffix, &mut writer)?;
+    append_file_content(args.suffix, context, &mut writer)?;
 
     Ok(())
 }
@@ -171,21 +175,35 @@ fn generate_sql(args: &Arguments, mut csv_reader: csv::Reader<io::BufReader<File
     Ok(())
 }
 
-fn append_file_content(path: String, writer: &mut BufWriter<File>) -> Result<(), io::Error> {
+#[derive(Serialize)]
+struct TemplateContext {
+    table: String,
+}
+
+fn append_file_content(path: String, context: &TemplateContext, writer: &mut BufWriter<File>) -> Result<(), io::Error> {
     if !Path::new(path.as_str()).exists() {
         return Ok(());
     }
     
     let file = File::open(path)?;
     let reader = io::BufReader::new(file);
-    let mut file_content = String::new();
+    let mut template = String::new();
 
     for line in reader.lines() {
-        file_content.push_str(line.unwrap().as_str());
-        file_content.push_str("\n");
+        template.push_str(line.unwrap().as_str());
+        template.push_str("\n");
     }
 
-    writeln!(writer, "{}", file_content)?;
+    let mut tt = TinyTemplate::new();
+    let rendered = match tt.add_template("append", template.as_str()) {
+        Ok(..) => match tt.render("append", context) {
+            Ok(r) => r,
+            Err(e) => return Err(io::Error::new(io::ErrorKind::InvalidInput, e))
+        },
+        Err(e) => return Err(io::Error::new(io::ErrorKind::InvalidInput, e))
+    };
+
+    writeln!(writer, "{}", rendered)?;
 
     Ok(())
 }
