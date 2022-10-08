@@ -1,4 +1,6 @@
-use clap::{Arg, App};
+use clap::{Arg, ArgMatches, App, ErrorKind};
+use std::str::FromStr;
+use std::str::ParseBoolError;
 
 mod lib;
 
@@ -79,10 +81,113 @@ fn main() {
             .help("Indicates whether the values type are declared, automatically detected or everything is taken as string."))
         .get_matches();
 
-    let args = lib::Arguments::new_from_console(matches);
+    let args = arguments_from_console(matches);
 
     match lib::process_csv(args) {
         Ok(())   => println!("CSV file processed successfully!"),
         Err(err) => println!("Error: {}.", err)
     };
+}
+
+fn arguments_from_console(matches: ArgMatches) -> lib::Arguments {
+    let mut arguments = lib::Arguments {
+        csv: String::from(""),
+        sql: String::from(""),
+        delimiter: b',',
+        has_headers: true,
+        table: String::from(""),
+        columns: Vec::new(),
+        chunk: 0,
+        chunk_insert: 0,
+        prefix: String::from(""),
+        suffix: String::from(""),
+        with_transaction: false,
+        typed: false,
+    };
+
+    if let Some(csv) = matches.value_of("csv") {
+        arguments.csv = String::from(csv);
+    }
+
+    let sql = matches.value_of("sql");
+    match sql {
+        Some(q) => arguments.sql = String::from(q),
+        None => arguments.sql = get_file_name_without_extension(&arguments.csv) + ".sql",
+    }
+
+    if let Some(delimiter) = matches.value_of("delimiter") {
+        match delimiter {
+            "comma"     => arguments.delimiter = b',',
+            "semicolon" => arguments.delimiter = b';',
+            "tab"       => arguments.delimiter = b'\t',
+            _ => App::new("Roma").error(ErrorKind::InvalidValue, "Invalid delimiter. Use 'comma', 'semicolon', or 'tab'.").exit()
+        }
+    }
+
+    if let Some(headers) = matches.value_of("headers") {
+        let has_headers: Result<bool, ParseBoolError> = FromStr::from_str(headers);
+        arguments.has_headers = has_headers.ok().unwrap();
+    }
+
+    let table = matches.value_of("table");
+    match table {
+        Some(tbl) => arguments.table = String::from(tbl),
+        None => arguments.table = get_file_name_without_extension(&arguments.csv),
+    }
+
+    if let Some(cols) = matches.values_of("columns") {
+        let columns: Vec<&str> = cols.collect();
+        let mut columns_vec: Vec<String> = Vec::new();
+        for s in &columns {
+            columns_vec.push(s.to_string());
+        }
+        arguments.columns = columns_vec;
+    }
+
+    if let Some(chunk) = matches.value_of("chunk") {
+        arguments.chunk = String::from(chunk).parse::<usize>().unwrap();
+        if arguments.chunk > 0 {
+            arguments.with_transaction = true;
+        }
+    }
+
+    if let Some(insert_chunk) = matches.value_of("chunk_insert") {
+        arguments.chunk_insert = String::from(insert_chunk).parse::<usize>().unwrap();
+    }
+
+    if let Some(prefix) = matches.value_of("prefix") {
+        arguments.prefix = String::from(prefix);
+    }
+
+    if let Some(suffix) = matches.value_of("suffix") {
+        arguments.suffix = String::from(suffix);
+    }
+
+    if let Some(with_transaction) = matches.value_of("with_transaction") {
+        if arguments.chunk <= 0 {
+            let result: Result<bool, ParseBoolError> = FromStr::from_str(with_transaction);
+            arguments.with_transaction = result.ok().unwrap();
+        }
+    }
+
+    if let Some(typed) = matches.value_of("typed") {
+        let result: Result<bool, ParseBoolError> = FromStr::from_str(typed);
+        arguments.typed = result.ok().unwrap();
+    }
+
+    return arguments;
+}
+
+fn get_file_name_without_extension(csv_file_name: &String) -> String {
+    let last_dot_pos = csv_file_name.rfind('.');
+    let last_slash_pos = csv_file_name.rfind('/');
+    return match last_dot_pos {
+        Some(pos_dot) => {
+            match last_slash_pos {
+                Some(pos_slash) => csv_file_name[(pos_slash + 1)..pos_dot].to_string(),
+                None => csv_file_name[..pos_dot].to_string(),
+            }
+        },
+        None => csv_file_name.to_string(),
+    }
 }
