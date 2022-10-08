@@ -16,3 +16,9 @@ The simplest approach is to pass the argument `--csv` or `-f` followed by a csv 
 
 It generates the `data.sql` file containing the SQL statements. For more 
 options, read the [documentation](https://www.hildeberto.com/roma/).
+
+## For Developers
+
+  - [Contributing](https://github.com/htmfilho/roma/blob/main/CONTRIBUTING.md)
+  - [Code of Conduct](https://github.com/htmfilho/roma/blob/main/CODE_OF_CONDUCT.md)
+  - [License](https://github.com/htmfilho/roma/blob/main/LICENSE)
