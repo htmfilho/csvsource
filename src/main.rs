@@ -83,7 +83,7 @@ fn main() {
 
     let args = arguments_from_console(matches);
 
-    match lib::process_csv(args) {
+    match lib::convert_to_sql(args) {
         Ok(())   => println!("CSV file processed successfully!"),
         Err(err) => println!("Error: {}.", err)
     };

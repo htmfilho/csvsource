@@ -8,7 +8,7 @@ use std::io::prelude::*;
 use std::result::Result;
 use tinytemplate::TinyTemplate;
 
-pub fn process_csv(args: Arguments) -> Result<(), io::Error> {
+pub fn convert_to_sql(args: Arguments) -> Result<(), io::Error> {
     if !Path::new(args.csv.as_str()).exists() {
         return Err(io::Error::new(io::ErrorKind::NotFound, "CSV file not found"));
     }
