@@ -1,4 +1,4 @@
-﻿= Roma : Convert a CSV file to SQL Insert Statements
+﻿= CSVSource : Convert a CSV file to SQL Insert Statements
 Hildeberto Mendonca <me@hildeberto.com>
 v0.6.0
 :doctype: book
@@ -8,25 +8,25 @@ v0.6.0
 :toclevels: 3
 :numbered:
 
-> Roma is a command line tool written in Rust to convert a CSV file to SQL statements. It has special features like grouping insert statements in transaction chunks and inserting multiple rows with a single insert statement.
+> CSVSource is a command line tool written in Rust to convert a CSV file to SQL statements. It has special features like grouping insert statements in transaction chunks and inserting multiple rows with a single insert statement.
 
-== Why Roma
+== Why CSVSource
 
 Using cloud providers to run our business has been a game changer. They allow us to rapidly provision all the resources to ensure high availability, security, and performance. In many cases, They also manage resources for us, considerably reducing complexity and saving time. However, the more control we delegate to them the less autonomy we have over those resources. This is a good thing because it pushes towards the adoption of good practices, but it can also be challenging sometimes.
 
 Take the provision of a managed PostgreSQL Server on Azure, for example. Azure ensures it is optimally configured for our needs, but it is quite limited when it comes to seeding the database using a CSV file. This is relatively easy doing with direct access to the server, but not possible to do in a managed instance.
 
-To solve this problem to all platforms, all cloud providers, and all SQL databases, we have developed a simple tool capable of converting a CSV file into a SQL file, where rows turn into insert statements. All you need after using Roma is a mean to execute the generated SQL script.
+To solve this problem to all platforms, all cloud providers, and all SQL databases, we have developed a simple tool capable of converting a CSV file into a SQL file, where rows turn into insert statements. All you need after using CSVSource is a mean to execute the generated SQL script.
 
-== Using Roma
+== Using CSVSource
 
-The https://waterloo.ca[City of Waterloo], located in Ontario, Canadá, has an https://data.waterloo.ca[Open Data Portal]. It publishes raw data about infrastructure, services, environment, transportation, etc. Residents can use the data to oversee public investments and services, identify gaps, discover development opportunities, and even create new business. For us, this portal is useful to test Roma. There is an interesting dataset we want to start with: an https://data.waterloo.ca/datasets/street-tree-inventory[inventory of every single tree planted in the streets] of Waterloo.
+The https://waterloo.ca[City of Waterloo], located in Ontario, Canadá, has an https://data.waterloo.ca[Open Data Portal]. It publishes raw data about infrastructure, services, environment, transportation, etc. Residents can use the data to oversee public investments and services, identify gaps, discover development opportunities, and even create new business. For us, this portal is useful to test CSVSource. There is an interesting dataset we want to start with: an https://data.waterloo.ca/datasets/street-tree-inventory[inventory of every single tree planted in the streets] of Waterloo.
 
 image::images/waterloo_tree_inventory.png[Waterloo Tree Inventory]
 
-This dataset is available in the folder https://github.com/htmfilho/roma/tree/main/examples[/examples]. We can process it with the following command:
+This dataset is available in the folder https://github.com/htmfilho/csvsource/tree/main/examples[/examples]. We can process it with the following command:
 
-    $ roma --csv waterloo_tree_inventory.csv
+    $ csvsource --csv waterloo_tree_inventory.csv
 
 which generates the sql file `waterloo_tree_inventory.sql`. This is what happens by default:
 
@@ -41,11 +41,11 @@ which generates the sql file `waterloo_tree_inventory.sql`. This is what happens
 
 These default behaviours can change using arguments. To specify a custom SQL filename, different from the CSV filename, use the argument `--sql` or `q`:
 
-    $ roma --csv waterloo_tree_inventory.csv --sql path/to/waterloo_trees.sql
+    $ csvsource --csv waterloo_tree_inventory.csv --sql path/to/waterloo_trees.sql
 
 To set a table name different from the CSV filename, use:
 
-    $ ./roma --csv waterloo_tree_inventory.csv --table TREE_INVENTORY
+    $ ./csvsource --csv waterloo_tree_inventory.csv --table TREE_INVENTORY
 
 If the first line contains data instead of headers then indicate it using `--headers` or `-h`:
 
@@ -93,7 +93,7 @@ A proper configuration of `--chunk` and `chunkinsert` can optimize the SQL file 
 
 ==== Argument Summary
 
-The following table summarizes all supported arguments, also accessible through: `roma --help`.
+The following table summarizes all supported arguments, also accessible through: `csvsource --help`.
 
 [cols="1,1,3,1,1"]
 |===
@@ -174,7 +174,7 @@ The following table summarizes all supported arguments, also accessible through:
 
 === Type Handling
 
-In a SQL insert statement, it is important to know the type of data to generate the right syntax. Strings and dates are delimited by single quotes ('), but numbers and booleans are not. Roma has mechanisms to detect data types, but it can also be unpredictable. Take a value that contains only numbers, but it isn't necessarily numeric, like a social security number. Roma will automatically identify it as numeric, but in another row it finds "none", making it a string.
+In a SQL insert statement, it is important to know the type of data to generate the right syntax. Strings and dates are delimited by single quotes ('), but numbers and booleans are not. CSVSource has mechanisms to detect data types, but it can also be unpredictable. Take a value that contains only numbers, but it isn't necessarily numeric, like a social security number. CSVSource will automatically identify it as numeric, but in another row it finds "none", making it a string.
 
 == About this Documentation
 

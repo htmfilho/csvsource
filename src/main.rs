@@ -5,7 +5,7 @@ use std::str::ParseBoolError;
 mod lib;
 
 fn main() {
-    let matches = App::new("Roma")
+    let matches = App::new("CSVSource")
         .version("0.6.0")
         .author("Hildeberto Mendonca <me@hildeberto.com>")
         .about("Converts a CSV file to SQL Insert Statements.")
@@ -120,7 +120,7 @@ fn arguments_from_console(matches: ArgMatches) -> lib::Arguments {
             "comma"     => arguments.delimiter = b',',
             "semicolon" => arguments.delimiter = b';',
             "tab"       => arguments.delimiter = b'\t',
-            _ => App::new("Roma").error(ErrorKind::InvalidValue, "Invalid delimiter. Use 'comma', 'semicolon', or 'tab'.").exit()
+            _ => App::new("CSVSource").error(ErrorKind::InvalidValue, "Invalid delimiter. Use 'comma', 'semicolon', or 'tab'.").exit()
         }
     }
 
