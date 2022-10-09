@@ -1,5 +1,7 @@
 [package]
 name    = "roma"
+description = "Converts a CSV file to SQL Insert Statements."
+license = "Apache-2.0"
 version = "0.6.0"
 edition = "2021"
 
