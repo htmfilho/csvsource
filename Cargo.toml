@@ -9,8 +9,8 @@ documentation = "https://www.hildeberto.com/csvsource/"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-clap         = "3.0.7"
-csv          = "1.1"
+clap         = "3.0.7"  # Full handling of command line arguments
+csv          = "1.1"    # Handling of csv files
 itertools    = "0.10.3"
 serde        = {version = "1.0.133", features = ["derive"]}
-tinytemplate = "1.2.1"
+tinytemplate = "1.2.1"  # Template engine to extend the generated output with prefix and sufix content
