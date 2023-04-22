@@ -2,8 +2,6 @@ use clap::{Arg, ArgMatches, App, ErrorKind};
 use std::str::FromStr;
 use std::str::ParseBoolError;
 
-mod lib;
-
 fn main() {
     let matches = App::new("CSVSource")
         .version("0.6.0")
@@ -83,14 +81,14 @@ fn main() {
 
     let args = arguments_from_console(matches);
 
-    match lib::convert_to_sql(args) {
+    match csvsource::convert_to_sql(args) {
         Ok(())   => println!("CSV file processed successfully!"),
         Err(err) => println!("Error: {}.", err)
     };
 }
 
-fn arguments_from_console(matches: ArgMatches) -> lib::Arguments {
-    let mut arguments = lib::Arguments {
+fn arguments_from_console(matches: ArgMatches) -> csvsource::Arguments {
+    let mut arguments = csvsource::Arguments {
         csv: String::from(""),
         sql: String::from(""),
         delimiter: b',',
