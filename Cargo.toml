@@ -2,11 +2,9 @@
 name    = "csvsource"
 description = "Converts a CSV file to SQL Insert Statements."
 license = "Apache-2.0"
-version = "0.6.0"
+version = "0.7.0"
 edition = "2021"
 documentation = "https://www.hildeberto.com/csvsource/"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 clap         = "3.0.7"  # Full handling of command line arguments
