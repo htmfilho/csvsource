@@ -2,7 +2,8 @@ use clap::{Arg, ArgMatches, App, ErrorKind};
 use std::str::FromStr;
 use std::str::ParseBoolError;
 use csvsource::Arguments;
-use csvsource::target;
+use csvsource::target::Target;
+use csvsource::target::TargetSql;
 
 fn main() {
     let matches = App::new("CSVSource")
@@ -88,8 +89,9 @@ fn main() {
         .get_matches();
 
     let args = arguments_from_console(matches);
+    let target_sql: TargetSql = Target::new();
 
-    match target::convert_to_sql(args) {
+    match target_sql.convert(args) {
         Ok(())   => println!("CSV file processed successfully!"),
         Err(err) => println!("Error: {}.", err)
     };

@@ -10,19 +10,32 @@ pub mod target {
     use std::result::Result;
     use tinytemplate::TinyTemplate;
     use crate::Arguments;
-    
-    pub fn convert_to_sql(args: Arguments) -> Result<(), io::Error> {
-        if !Path::new(args.source.as_str()).exists() {
-            return Err(io::Error::new(io::ErrorKind::NotFound, "CSV file not found"));
+
+    pub trait Target {
+        fn new() -> Self;
+        fn convert(&self, args: Arguments) -> Result<(), io::Error>;
+    }
+
+    pub struct TargetSql {}
+
+    impl Target for TargetSql {
+        fn new() -> Self {
+            TargetSql {}
         }
 
-        let csv_file = File::open(args.source.clone())?;
-        let reader = io::BufReader::new(csv_file);
-        let csv_reader = csv::ReaderBuilder::new()
-                    .has_headers(args.has_headers)
-                    .from_reader(reader);
-
-        generate_sql_file(args, csv_reader)
+        fn convert(&self, args: Arguments) -> Result<(), io::Error> {
+            if !Path::new(args.source.as_str()).exists() {
+                return Err(io::Error::new(io::ErrorKind::NotFound, "CSV file not found"));
+            }
+    
+            let csv_file = File::open(args.source.clone())?;
+            let reader = io::BufReader::new(csv_file);
+            let csv_reader = csv::ReaderBuilder::new()
+                        .has_headers(args.has_headers)
+                        .from_reader(reader);
+    
+            generate_sql_file(args, csv_reader)
+        }
     }
 
     fn generate_sql_file(args: Arguments, csv_reader: csv::Reader<io::BufReader<File>>) -> Result<(), io::Error> {
