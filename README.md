@@ -10,9 +10,9 @@ learn how to use CSVSource with the `--help` argument:
 
     $ ./csvsource --help
 
-The simplest approach is to pass the argument `--csv` or `-f` followed by a csv file:
+The simplest approach is to pass the argument `--source` or `-f` followed by a csv file:
 
-    $ ./csvsource --csv data.csv
+    $ ./csvsource --source data.csv
 
 It generates the `data.sql` file containing the SQL statements. For more 
 options, read the [documentation](https://www.hildeberto.com/csvsource/).

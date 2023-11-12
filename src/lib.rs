@@ -9,11 +9,11 @@ use std::result::Result;
 use tinytemplate::TinyTemplate;
 
 pub fn convert_to_sql(args: Arguments) -> Result<(), io::Error> {
-    if !Path::new(args.csv.as_str()).exists() {
+    if !Path::new(args.source.as_str()).exists() {
         return Err(io::Error::new(io::ErrorKind::NotFound, "CSV file not found"));
     }
 
-    let csv_file = File::open(args.csv.clone())?;
+    let csv_file = File::open(args.source.clone())?;
     let reader = io::BufReader::new(csv_file);
     let csv_reader = csv::ReaderBuilder::new()
                 .has_headers(args.has_headers)
@@ -23,7 +23,7 @@ pub fn convert_to_sql(args: Arguments) -> Result<(), io::Error> {
 }
 
 fn generate_sql_file(args: Arguments, csv_reader: csv::Reader<io::BufReader<File>>) -> Result<(), io::Error> {
-    let sql_file = File::create(&args.sql).expect("Unable to create sql file");
+    let sql_file = File::create(&args.target).expect("Unable to create sql file");
     let mut writer = BufWriter::new(sql_file);
 
     let context = &TemplateContext {
@@ -180,8 +180,8 @@ fn is_boolean(str: String) -> bool {
 }
 
 pub struct Arguments {
-    pub csv              : String,
-    pub sql              : String,
+    pub source           : String,
+    pub target           : String,
     pub delimiter        : u8,
     pub has_headers      : bool,
     pub table            : String,

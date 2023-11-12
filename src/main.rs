@@ -7,18 +7,18 @@ fn main() {
         .version("0.6.0")
         .author("Hildeberto Mendonca <me@hildeberto.com>")
         .about("Converts a CSV file to SQL Insert Statements.")
-        .arg(Arg::new("csv")
-            .long("csv")
+        .arg(Arg::new("source")
+            .long("source")
             .short('f')
             .value_name("file")
             .required(true)
             .takes_value(true)
-            .help("Relative or absolute path to the CSV file. The file's name is also used as table name and sql file's name, unless specified otherwise by the arguments `--table` and `--sql` respectivelly."))
-        .arg(Arg::new("sql")
-            .long("sql")
-            .short('q')
+            .help("Relative or absolute path to the CSV file. The file's name is also used as table name and target file's name, unless specified otherwise by the arguments `--table` and `--target` respectivelly."))
+        .arg(Arg::new("target")
+            .long("target")
+            .short('g')
             .value_name("file")
-            .help("Relative or absolute path to the SQL file."))
+            .help("Relative or absolute path to the target file."))
         .arg(Arg::new("delimiter")
             .long("delimiter")
             .short('d')
@@ -89,8 +89,8 @@ fn main() {
 
 fn arguments_from_console(matches: ArgMatches) -> csvsource::Arguments {
     let mut arguments = csvsource::Arguments {
-        csv: String::from(""),
-        sql: String::from(""),
+        source: String::from(""),
+        target: String::from(""),
         delimiter: b',',
         has_headers: true,
         table: String::from(""),
@@ -103,14 +103,14 @@ fn arguments_from_console(matches: ArgMatches) -> csvsource::Arguments {
         typed: false,
     };
 
-    if let Some(csv) = matches.value_of("csv") {
-        arguments.csv = String::from(csv);
+    if let Some(source) = matches.value_of("source") {
+        arguments.source = String::from(source);
     }
 
-    let sql = matches.value_of("sql");
-    match sql {
-        Some(q) => arguments.sql = String::from(q),
-        None => arguments.sql = get_file_name_without_extension(&arguments.csv) + ".sql",
+    let target = matches.value_of("target");
+    match target {
+        Some(q) => arguments.target = String::from(q),
+        None => arguments.target = get_file_name_without_extension(&arguments.source) + ".sql",
     }
 
     if let Some(delimiter) = matches.value_of("delimiter") {
@@ -130,7 +130,7 @@ fn arguments_from_console(matches: ArgMatches) -> csvsource::Arguments {
     let table = matches.value_of("table");
     match table {
         Some(tbl) => arguments.table = String::from(tbl),
-        None => arguments.table = get_file_name_without_extension(&arguments.csv),
+        None => arguments.table = get_file_name_without_extension(&arguments.source),
     }
 
     if let Some(cols) = matches.values_of("columns") {

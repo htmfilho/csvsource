@@ -26,7 +26,7 @@ image::images/waterloo_tree_inventory.png[Waterloo Tree Inventory]
 
 This dataset is available in the folder https://github.com/htmfilho/csvsource/tree/main/examples[/examples]. We can process it with the following command:
 
-    $ csvsource --csv waterloo_tree_inventory.csv
+    $ csvsource --source waterloo_tree_inventory.csv
 
 which generates the sql file `waterloo_tree_inventory.sql`. This is what happens by default:
 
@@ -39,13 +39,13 @@ which generates the sql file `waterloo_tree_inventory.sql`. This is what happens
 
 === Supported Command Line Arguments
 
-These default behaviours can change using arguments. To specify a custom SQL filename, different from the CSV filename, use the argument `--sql` or `q`:
+These default behaviours can change using arguments. To specify a custom SQL filename, different from the CSV filename, use the argument `--target` or `g`:
 
-    $ csvsource --csv waterloo_tree_inventory.csv --sql path/to/waterloo_trees.sql
+    $ csvsource --source waterloo_tree_inventory.csv --target path/to/waterloo_trees.sql
 
 To set a table name different from the CSV filename, use:
 
-    $ ./csvsource --csv waterloo_tree_inventory.csv --table TREE_INVENTORY
+    $ ./csvsource --source waterloo_tree_inventory.csv --table TREE_INVENTORY
 
 If the first line contains data instead of headers then indicate it using `--headers` or `-h`:
 
@@ -99,17 +99,17 @@ The following table summarizes all supported arguments, also accessible through:
 |===
 | Argument | Short | Description | Options | Default 
 
-| `--csv`
+| `--source`
 | `-f`
-| Relative or absolute path to the CSV file. The file's name is also used as table name and sql file's name, unless specified otherwise by the arguments `--table` and `--sql` respectivelly.
+| Relative or absolute path to the CSV file. The file's name is also used as table name and target file's name, unless specified otherwise by the arguments `--table` and `--target` respectivelly.
 | NA
 | Mandatory
 
-| `--sql`
-| `-q`
-| Relative or absolute path to the SQL file.
+| `--target`
+| `-g`
+| Relative or absolute path to the target file.
 | NA
-| Name of the CSV file with the `sql` extension instead.
+| Name of the CSV file with the target extension instead.
 
 | `--delimiter`
 | `-d`
