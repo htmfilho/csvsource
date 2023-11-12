@@ -1,6 +1,8 @@
 use clap::{Arg, ArgMatches, App, ErrorKind};
 use std::str::FromStr;
 use std::str::ParseBoolError;
+use csvsource::Arguments;
+use csvsource::target;
 
 fn main() {
     let matches = App::new("CSVSource")
@@ -19,6 +21,12 @@ fn main() {
             .short('g')
             .value_name("file")
             .help("Relative or absolute path to the target file."))
+        .arg(Arg::new("target_type")
+            .long("target_type")
+            .short('e')
+            .default_value("sql")
+            .value_name("sql | csv")
+            .help("The type of output we want to generate from the source."))
         .arg(Arg::new("delimiter")
             .long("delimiter")
             .short('d')
@@ -81,16 +89,17 @@ fn main() {
 
     let args = arguments_from_console(matches);
 
-    match csvsource::convert_to_sql(args) {
+    match target::convert_to_sql(args) {
         Ok(())   => println!("CSV file processed successfully!"),
         Err(err) => println!("Error: {}.", err)
     };
 }
 
-fn arguments_from_console(matches: ArgMatches) -> csvsource::Arguments {
-    let mut arguments = csvsource::Arguments {
+fn arguments_from_console(matches: ArgMatches) -> Arguments {
+    let mut arguments = Arguments {
         source: String::from(""),
         target: String::from(""),
+        target_type: String::from(""),
         delimiter: b',',
         has_headers: true,
         table: String::from(""),
@@ -111,6 +120,12 @@ fn arguments_from_console(matches: ArgMatches) -> csvsource::Arguments {
     match target {
         Some(q) => arguments.target = String::from(q),
         None => arguments.target = get_file_name_without_extension(&arguments.source) + ".sql",
+    }
+
+    let target_type = matches.value_of("target_type");
+    match target_type {
+        Some(tt) => arguments.target_type = String::from(tt),
+        None => arguments.target_type = String::from("sql")
     }
 
     if let Some(delimiter) = matches.value_of("delimiter") {
