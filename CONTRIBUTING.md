@@ -44,7 +44,7 @@ To see the documentation:
 
 ### Run
 
-    $ cargo run -- --csv examples/waterloo_tree_inventory.csv
+    $ cargo run -- --source examples/waterloo_tree_inventory.csv
 
 ### Build
 
@@ -63,3 +63,25 @@ Targeting other operating systems:
 Installing to run locally, by adding the command to the classpath:
 
     $ cargo install --path .
+
+## Tests
+
+CSVSource was originally developed for learning purpose before being adopted in production. Unfortunately, it lacks automated tests to make sure all its features still work after changes. That would be great if you could contribute with tests, but while we learn how to test Rust code, please run the following test cases to verify whether the resulting target files are generated as expected:
+
+* `$ cargo run -- --source examples/waterloo_tree_inventory.csv`: validates default behaviors:
+   1. it generates a sql file by default
+   2. there is an sql insert statement for each line of the csv file
+   3. the name of the table is equal to the name of the csv file
+   4. the first line of the csv is used to define the names of the columns
+   5. all values are defined as string
+
+* `$ cargo run -- --source examples/waterloo_tree_inventory.csv --target different_name.sql`:
+   1. it generates the target with a diferent file name from the source
+   2. the table name is still the name of the source file
+
+* `$ cargo run -- --source examples/waterloo_tree_inventory.csv --table tree_inventory`:
+   1. the table name in the insert statements is different from the source file name
+
+
+
+* `$ rm *.sql` to clean up all the generated targets.
