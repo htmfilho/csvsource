@@ -13,3 +13,4 @@ crates-api.txt
 # Others
 *.sql
 .idea/
+.vscode/
