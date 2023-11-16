@@ -3,6 +3,7 @@ use std::str::FromStr;
 use std::str::ParseBoolError;
 use csvsource::Arguments;
 use csvsource::target::Target;
+use csvsource::target::TargetCsv;
 use csvsource::target::TargetSql;
 
 fn main() {
@@ -89,9 +90,12 @@ fn main() {
         .get_matches();
 
     let args = arguments_from_console(matches);
-    let target_sql: TargetSql = Target::new();
+    let target: Box<dyn Target> = match args.target_type.as_str() {
+        "csv" => Box::new(TargetCsv{}),
+        _     => Box::new(TargetSql{}),
+    };
 
-    match target_sql.convert(args) {
+    match target.convert(args) {
         Ok(())   => println!("CSV file processed successfully!"),
         Err(err) => println!("Error: {}.", err)
     };
