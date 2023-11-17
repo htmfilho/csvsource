@@ -3,8 +3,8 @@ use std::str::FromStr;
 use std::str::ParseBoolError;
 use csvsource::Arguments;
 use csvsource::target::Target;
-use csvsource::target::TargetCsv;
-use csvsource::target::TargetSql;
+use csvsource::target::csv::TargetCsv;
+use csvsource::target::sql::TargetSql;
 
 fn main() {
     let matches = App::new("CSVSource")
