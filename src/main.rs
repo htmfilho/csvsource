@@ -89,10 +89,10 @@ fn main() {
             .help("Indicates whether the values type are declared, automatically detected or everything is taken as string."))
         .get_matches();
 
-    let args = arguments_from_console(matches);
+    let args = get_common_arguments(&matches);
     let target: Box<dyn Target> = match args.target_type.as_str() {
         "csv" => Box::new(TargetCsv{}),
-        _     => Box::new(TargetSql{}),
+        _     => Box::new(get_target_sql(&matches, &args)),
     };
 
     match target.convert(args) {
@@ -101,13 +101,8 @@ fn main() {
     };
 }
 
-fn arguments_from_console(matches: ArgMatches) -> Arguments {
-    let mut arguments = Arguments {
-        source: String::from(""),
-        target: String::from(""),
-        target_type: String::from(""),
-        delimiter: b',',
-        has_headers: true,
+fn get_target_sql(matches: &ArgMatches, args: &Arguments) -> TargetSql {
+    let mut target_sql = TargetSql{
         table: String::from(""),
         columns: Vec::new(),
         chunk: 0,
@@ -116,6 +111,64 @@ fn arguments_from_console(matches: ArgMatches) -> Arguments {
         suffix: String::from(""),
         with_transaction: false,
         typed: false,
+    };
+
+    let table = matches.value_of("table");
+    match table {
+        Some(tbl) => target_sql.table = String::from(tbl),
+        None => target_sql.table = get_file_name_without_extension(&args.source),
+    }
+
+    if let Some(cols) = matches.values_of("columns") {
+        let columns: Vec<&str> = cols.collect();
+        let mut columns_vec: Vec<String> = Vec::new();
+        for s in &columns {
+            columns_vec.push(s.to_string());
+        }
+        target_sql.columns = columns_vec;
+    }
+
+    if let Some(chunk) = matches.value_of("chunk") {
+        target_sql.chunk = String::from(chunk).parse::<usize>().unwrap();
+        if target_sql.chunk > 0 {
+            target_sql.with_transaction = true;
+        }
+    }
+
+    if let Some(insert_chunk) = matches.value_of("chunk_insert") {
+        target_sql.chunk_insert = String::from(insert_chunk).parse::<usize>().unwrap();
+    }
+
+    if let Some(prefix) = matches.value_of("prefix") {
+        target_sql.prefix = String::from(prefix);
+    }
+
+    if let Some(suffix) = matches.value_of("suffix") {
+        target_sql.suffix = String::from(suffix);
+    }
+
+    if let Some(with_transaction) = matches.value_of("with_transaction") {
+        if target_sql.chunk <= 0 {
+            let result: Result<bool, ParseBoolError> = FromStr::from_str(with_transaction);
+            target_sql.with_transaction = result.ok().unwrap();
+        }
+    }
+
+    if let Some(typed) = matches.value_of("typed") {
+        let result: Result<bool, ParseBoolError> = FromStr::from_str(typed);
+        target_sql.typed = result.ok().unwrap();
+    }
+
+    return target_sql
+}
+
+fn get_common_arguments(matches: &ArgMatches) -> Arguments {
+    let mut arguments = Arguments {
+        source: String::from(""),
+        target: String::from(""),
+        target_type: String::from(""),
+        delimiter: b',',
+        has_headers: true,
     };
 
     if let Some(source) = matches.value_of("source") {
@@ -146,52 +199,6 @@ fn arguments_from_console(matches: ArgMatches) -> Arguments {
     if let Some(headers) = matches.value_of("headers") {
         let has_headers: Result<bool, ParseBoolError> = FromStr::from_str(headers);
         arguments.has_headers = has_headers.ok().unwrap();
-    }
-
-    let table = matches.value_of("table");
-    match table {
-        Some(tbl) => arguments.table = String::from(tbl),
-        None => arguments.table = get_file_name_without_extension(&arguments.source),
-    }
-
-    if let Some(cols) = matches.values_of("columns") {
-        let columns: Vec<&str> = cols.collect();
-        let mut columns_vec: Vec<String> = Vec::new();
-        for s in &columns {
-            columns_vec.push(s.to_string());
-        }
-        arguments.columns = columns_vec;
-    }
-
-    if let Some(chunk) = matches.value_of("chunk") {
-        arguments.chunk = String::from(chunk).parse::<usize>().unwrap();
-        if arguments.chunk > 0 {
-            arguments.with_transaction = true;
-        }
-    }
-
-    if let Some(insert_chunk) = matches.value_of("chunk_insert") {
-        arguments.chunk_insert = String::from(insert_chunk).parse::<usize>().unwrap();
-    }
-
-    if let Some(prefix) = matches.value_of("prefix") {
-        arguments.prefix = String::from(prefix);
-    }
-
-    if let Some(suffix) = matches.value_of("suffix") {
-        arguments.suffix = String::from(suffix);
-    }
-
-    if let Some(with_transaction) = matches.value_of("with_transaction") {
-        if arguments.chunk <= 0 {
-            let result: Result<bool, ParseBoolError> = FromStr::from_str(with_transaction);
-            arguments.with_transaction = result.ok().unwrap();
-        }
-    }
-
-    if let Some(typed) = matches.value_of("typed") {
-        let result: Result<bool, ParseBoolError> = FromStr::from_str(typed);
-        arguments.typed = result.ok().unwrap();
     }
 
     return arguments;
