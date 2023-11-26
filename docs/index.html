@@ -505,7 +505,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ csvsource --csv waterloo_tree_inventory.csv</pre>
+<pre>$ csvsource --source waterloo_tree_inventory.csv</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -536,11 +536,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect2">
 <h3 id="_supported_command_line_arguments">2.1. Supported Command Line Arguments</h3>
 <div class="paragraph">
-<p>These default behaviours can change using arguments. To specify a custom SQL filename, different from the CSV filename, use the argument <code>--sql</code> or <code>q</code>:</p>
+<p>These default behaviours can change using arguments. To specify a custom SQL filename, different from the CSV filename, use the argument <code>--target</code> or <code>g</code>:</p>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ csvsource --csv waterloo_tree_inventory.csv --sql path/to/waterloo_trees.sql</pre>
+<pre>$ csvsource --source waterloo_tree_inventory.csv --target path/to/waterloo_trees.sql</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -548,7 +548,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>$ ./csvsource --csv waterloo_tree_inventory.csv --table TREE_INVENTORY</pre>
+<pre>$ ./csvsource --source waterloo_tree_inventory.csv --table TREE_INVENTORY</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -663,18 +663,18 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--csv</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--source</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Relative or absolute path to the CSV file. The file&#8217;s name is also used as table name and sql file&#8217;s name, unless specified otherwise by the arguments <code>--table</code> and <code>--sql</code> respectivelly.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Relative or absolute path to the CSV file. The file&#8217;s name is also used as table name and target file&#8217;s name, unless specified otherwise by the arguments <code>--table</code> and <code>--target</code> respectivelly.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">NA</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Mandatory</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--sql</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-q</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Relative or absolute path to the SQL file.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--target</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-g</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Relative or absolute path to the target file.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">NA</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Name of the CSV file with the <code>sql</code> extension instead.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Name of the CSV file with the target extension instead.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>--delimiter</code></p></td>
@@ -776,7 +776,7 @@ $ asciidoctor-pdf docs/index.adoc</pre>
 <div id="footer">
 <div id="footer-text">
 Version 0.6.0<br>
-Last updated 2023-11-11 11:05:51 -0500
+Last updated 2023-11-22 10:51:20 -0500
 </div>
 </div>
 </body>
