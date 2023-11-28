@@ -1,4 +1,4 @@
-﻿= CSVSource : Convert a CSV file to SQL Insert Statements
+﻿= CSVSource : Converting CSV Files to Something Else
 Hildeberto Mendonca <me@hildeberto.com>
 v0.6.0
 :doctype: book
@@ -8,7 +8,7 @@ v0.6.0
 :toclevels: 3
 :numbered:
 
-> CSVSource is a command line tool written in Rust to convert a CSV file to SQL statements. It has special features like grouping insert statements in transaction chunks and inserting multiple rows with a single insert statement.
+> CSVSource is a command line tool written in Rust to convert a CSV file to something else, including SQL. It has special features like grouping insert statements in transaction chunks and inserting multiple rows with a single insert statement.
 
 == Why CSVSource
 
