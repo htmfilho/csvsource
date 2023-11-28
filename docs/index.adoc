@@ -1,5 +1,5 @@
-﻿= CSVSource : Converting CSV Files to Something Else
-Hildeberto Mendonca <me@hildeberto.com>
+﻿= CSVSource : Converting CSV to Something Else
+Hildeberto Mendonca
 v0.6.0
 :doctype: book
 :pdf-page-size: LETTER
